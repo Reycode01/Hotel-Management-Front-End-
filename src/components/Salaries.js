@@ -16,15 +16,19 @@ const Salaries = () => {
   };
 
   const handleSubmit = async () => {
+    // Convert input values to numbers
     const hours = Number(hoursWorked);
     const pay = Number(totalPay);
     const damages = Number(totalDamages);
 
-    if (!employeeName.trim() || hours <= 0 || pay <= 0 || !date) {
+    // Validate inputs
+    if (!employeeName.trim() || hours <= 0 || pay <= 0 || isNaN(hours) || isNaN(pay) || isNaN(damages) || !date) {
       setErrorMessage('Please fill in all fields correctly.');
+      console.log('Validation failed:', { employeeName, hours, pay, damages, date });
       return;
     }
 
+    // Calculate final total pay
     const calculatedFinalPay = calculateFinalTotalPay(pay, damages);
     const newSalary = {
       employee_name: employeeName,
@@ -36,7 +40,7 @@ const Salaries = () => {
     };
 
     try {
-      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/salaries', newSalary); // Updated URL
+      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/salaries', newSalary);
       console.log('Adding new salary:', response.data);
 
       // Clear error messages
@@ -52,12 +56,11 @@ const Salaries = () => {
     } catch (error) {
       console.error('Error adding salary:', error);
       if (error.response && error.response.status === 400) {
-        // Employee has already been paid for this date
         setErrorMessage(error.response.data.error || 'An error occurred.');
-        setSuccessMessage('');
       } else {
         setErrorMessage('An error occurred while adding the salary.');
       }
+      setSuccessMessage('');
     }
   };
 
@@ -181,3 +184,4 @@ const Salaries = () => {
 };
 
 export default Salaries;
+
