@@ -31,11 +31,11 @@ const Salaries = () => {
     // Calculate final total pay
     const calculatedFinalPay = calculateFinalTotalPay(pay, damages);
     const newSalary = {
-      employee_name: employeeName,
-      hours_worked: hours,
-      total_pay: pay,
-      total_damages: damages,
-      final_total_pay: calculatedFinalPay,
+      employeeName,
+      hoursWorked: hours,
+      totalPay: pay,
+      totalDamages: damages,
+      finalTotalPay: calculatedFinalPay,
       date,
     };
 
@@ -47,7 +47,11 @@ const Salaries = () => {
       setErrorMessage('');
       setSuccessMessage('Salary successfully added.');
 
-      setSalariesList([...salariesList, newSalary]);
+      // Fetch updated salaries list
+      const { data } = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/salaries');
+      setSalariesList(data.salaries);
+
+      // Clear form fields
       setEmployeeName('');
       setHoursWorked('');
       setTotalPay('');
@@ -64,9 +68,20 @@ const Salaries = () => {
     }
   };
 
-  const handleDelete = (index) => {
-    const updatedList = salariesList.filter((_, i) => i !== index);
-    setSalariesList(updatedList);
+  const handleDelete = async (index) => {
+    // Assume we need to delete by index, but you need a unique identifier for each record
+    const salaryToDelete = salariesList[index];
+    try {
+      // Here you need to implement the DELETE functionality, 
+      // which is not currently in the backend
+      // await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/salaries/${salaryToDelete.id}`);
+
+      // Simulate successful deletion by filtering out the deleted item
+      const updatedList = salariesList.filter((_, i) => i !== index);
+      setSalariesList(updatedList);
+    } catch (error) {
+      console.error('Error deleting salary:', error);
+    }
   };
 
   return (
@@ -165,7 +180,7 @@ const Salaries = () => {
                   <p className="text-sm">Hours Worked: {salary.hours_worked.toLocaleString()}</p>
                   <p className="text-sm">Total Pay: Ksh {salary.total_pay.toLocaleString()}</p>
                   <p className="text-sm">Total Damages: Ksh {salary.total_damages.toLocaleString()}</p>
-                  <p className="text-sm">Date: {salary.date}</p>
+                  <p className="text-sm">Date: {new Date(salary.date).toLocaleDateString()}</p>
                   <p className="text-sm font-bold">Final Total Pay: Ksh {salary.final_total_pay.toLocaleString()}</p>
                 </div>
                 <button
@@ -184,4 +199,5 @@ const Salaries = () => {
 };
 
 export default Salaries;
+
 
