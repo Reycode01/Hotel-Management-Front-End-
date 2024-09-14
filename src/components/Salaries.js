@@ -86,8 +86,8 @@ const Salaries = () => {
   };
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-900 py-4">
-      <div className="p-5 bg-gray-800 bg-opacity-90 rounded-xl shadow-lg w-full max-w-4xl border border-gray-700 backdrop-blur-md">
+    <div className="flex flex-col items-center bg-gray-900 py-4 px-4">
+      <div className="p-5 bg-gray-800 bg-opacity-90 rounded-xl shadow-lg w-full max-w-3xl border border-gray-700 backdrop-blur-md">
         <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500 mb-8">
           Daily Salaries
         </h2>
@@ -162,16 +162,16 @@ const Salaries = () => {
 
         <button
           onClick={handleSubmit}
-          className="mt-6 w-full bg-gradient-to-r from-purple-500 to-teal-400 text-white py-3 rounded-lg shadow-lg hover:bg-gradient-to-l transform transition-all hover:scale-105"
+          className="mt-6 w-full bg-gradient-to-r from-purple-500 to-teal-400 text-white py-3 rounded-lg shadow-lg hover:bg-gradient-to-l transform transition-all hover:scale-100"
         >
           Add Salary
         </button>
       </div>
 
       {salariesList.length > 0 && (
-        <div className="mt-12 p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg w-full max-w-4xl border border-gray-700 backdrop-blur-md">
-          <h3 className="text-3xl font-semibold mb-6 text-teal-300">Salaries List</h3>
-          <ul className="space-y-6">
+        <div className="mt-12 p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg w-full max-w-3xl border border-gray-700 backdrop-blur-md">
+          <h3 className="text-2xl font-semibold mb-6 text-teal-300">Salaries List</h3>
+          <ul className="space-y-3">
             {salariesList.map((salary) => (
               <li
                 key={salary.id}
