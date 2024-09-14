@@ -35,7 +35,7 @@ const Supplies = () => {
 
       // Create supply object
       const newSupply = {
-        supply_name: supplyName,
+        name: supplyName,
         amount: formattedAmount,
         quantity: formattedQuantity,
         unit,
