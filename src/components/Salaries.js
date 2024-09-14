@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Salaries = () => {
@@ -11,24 +11,36 @@ const Salaries = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
+  useEffect(() => {
+    // Fetch the initial list of salaries when the component mounts
+    const fetchSalaries = async () => {
+      try {
+        const { data } = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/salaries');
+        setSalariesList(data.salaries);
+      } catch (error) {
+        console.error('Error fetching salaries:', error);
+        setErrorMessage('Unable to fetch salaries.');
+      }
+    };
+
+    fetchSalaries();
+  }, []);
+
   const calculateFinalTotalPay = (pay, damages) => {
     return pay - damages;
   };
 
   const handleSubmit = async () => {
-    // Convert input values to numbers
     const hours = Number(hoursWorked);
     const pay = Number(totalPay);
     const damages = Number(totalDamages);
 
-    // Validate inputs
     if (!employeeName.trim() || hours <= 0 || pay <= 0 || isNaN(hours) || isNaN(pay) || isNaN(damages) || !date) {
       setErrorMessage('Please fill in all fields correctly.');
       console.log('Validation failed:', { employeeName, hours, pay, damages, date });
       return;
     }
 
-    // Calculate final total pay
     const calculatedFinalPay = calculateFinalTotalPay(pay, damages);
     const newSalary = {
       employeeName,
@@ -40,12 +52,9 @@ const Salaries = () => {
     };
 
     try {
-      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/salaries', newSalary);
-      console.log('Adding new salary:', response.data);
-
-      // Clear error messages
-      setErrorMessage('');
+      await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/salaries', newSalary);
       setSuccessMessage('Salary successfully added.');
+      setErrorMessage('');
 
       // Fetch updated salaries list
       const { data } = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/salaries');
@@ -68,19 +77,16 @@ const Salaries = () => {
     }
   };
 
-  const handleDelete = async (index) => {
-    // Assume we need to delete by index, but you need a unique identifier for each record
-    const salaryToDelete = salariesList[index];
+  const handleDelete = async (id) => {
     try {
-      // Here you need to implement the DELETE functionality, 
-      // which is not currently in the backend
-      // await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/salaries/${salaryToDelete.id}`);
-
-      // Simulate successful deletion by filtering out the deleted item
-      const updatedList = salariesList.filter((_, i) => i !== index);
-      setSalariesList(updatedList);
+      await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/salaries/${id}`);
+      setSuccessMessage('Salary record deleted successfully!');
+      
+      // Remove the deleted salary from the list
+      setSalariesList(salariesList.filter(salary => salary.id !== id));
     } catch (error) {
       console.error('Error deleting salary:', error);
+      setErrorMessage('An error occurred while deleting the salary.');
     }
   };
 
@@ -170,9 +176,9 @@ const Salaries = () => {
         <div className="mt-8 bg-white p-6 rounded-lg shadow-lg w-full mx-auto">
           <h3 className="text-2xl font-semibold mb-4 text-gray-800">Salaries List</h3>
           <ul className="space-y-4">
-            {salariesList.map((salary, index) => (
+            {salariesList.map((salary) => (
               <li
-                key={index}
+                key={salary.id}
                 className="flex justify-between items-center bg-gradient-to-r from-purple-400 to-pink-500 text-white p-4 rounded-lg shadow-md"
               >
                 <div>
@@ -184,7 +190,7 @@ const Salaries = () => {
                   <p className="text-sm font-bold">Final Total Pay: Ksh {salary.final_total_pay.toLocaleString()}</p>
                 </div>
                 <button
-                  onClick={() => handleDelete(index)}
+                  onClick={() => handleDelete(salary.id)}
                   className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors"
                 >
                   Delete
