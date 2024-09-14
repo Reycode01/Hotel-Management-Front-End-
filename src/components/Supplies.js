@@ -39,7 +39,7 @@ const Supplies = () => {
         amount: formattedAmount,
         quantity: formattedQuantity,
         unit,
-        supply_date: supplyDate,
+        supplyDate,
       };
 
       // Update URL to match your backend endpoint
