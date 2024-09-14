@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const roomsList = [
-  { name: 'Room 101', price: 2000 },
-  { name: 'Room 102', price: 3000 },
-  { name: 'Room 103', price: 2500 },
-  { name: 'Room 104', price: 3500 },
-  { name: 'Room 105', price: 5000 },
-  { name: 'Room 106', price: 4000 },
-  { name: 'Room 107', price: 4500 },
-  { name: 'Room 108', price: 5500 },
-  { name: 'Room 109', price: 6000 },
-  { name: 'Room 110', price: 1000 },
+  { name: 'Sapphire Suite', price: 1000 },
+  { name: 'Emerald Haven', price: 2000 },
+  { name: 'Ruby Retreat', price: 2500 },
+  { name: 'Diamond Deluxe', price: 3000 },
+  { name: 'Platinum Palace', price: 3500 },
+  { name: 'Royal Residence', price: 4000 },
+  { name: 'Majestic Manor', price: 4500 },
+  { name: 'Opulent Oasis', price: 5000 },
+  { name: 'Luxury Loft', price: 5500 },
+  { name: 'Presidential Penthouse', price: 6000 },
 ];
 
 const RoomBooking = () => {
@@ -21,6 +21,7 @@ const RoomBooking = () => {
   const [selectedRoom, setSelectedRoom] = useState('');
   const [bookingDate, setBookingDate] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [showBookingForm, setShowBookingForm] = useState(false);
 
   useEffect(() => {
     if (bookingDate) {
@@ -28,7 +29,6 @@ const RoomBooking = () => {
     }
   }, [bookingDate]);
 
-  // Fetch booked rooms from the server
   const fetchRoomBookings = async () => {
     try {
       const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/room-bookings', {
@@ -37,7 +37,6 @@ const RoomBooking = () => {
 
       const bookedRooms = response.data;
 
-      // Update room state based on booked rooms
       const updatedRooms = roomsList.map(room => ({
         ...room,
         booked: bookedRooms.some(booking => booking.room_name === room.name && booking.booking_date === bookingDate)
@@ -58,6 +57,7 @@ const RoomBooking = () => {
     setSelectedRoom(room.name);
     setBookingAmount(String(room.price));
     setErrorMessage('');
+    setShowBookingForm(true); // Show booking form
   };
 
   const handleBooking = async () => {
@@ -82,7 +82,8 @@ const RoomBooking = () => {
       setSelectedRoom('');
       setBookingDate('');
       setErrorMessage('');
-      fetchRoomBookings();  // Refresh room bookings from server
+      setShowBookingForm(false); // Close booking form
+      fetchRoomBookings();
     } catch (error) {
       setErrorMessage(error.response?.data?.error || 'An error occurred while submitting the booking.');
       console.error(error.response?.data || error.message);
@@ -90,64 +91,86 @@ const RoomBooking = () => {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 rounded-xl shadow-lg">
-      <h2 className="text-5xl font-extrabold mb-6 text-white text-center drop-shadow-lg">
+    <div className="relative p-4 bg-gray-900 rounded-xl shadow-lg">
+      <h2 className="text-4xl font-extrabold mb-4 text-center" style={{ color: '#24f21d' }}>
         Room Booking
       </h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
-        {rooms.map((room) => (
-          <button
-            key={room.name}
-            onClick={() => handleRoomClick(room)}
-            disabled={room.booked}
-            className={`flex items-center justify-between p-4 rounded-lg shadow-xl transition-transform transform hover:scale-105 hover:shadow-2xl ${room.booked ? 'bg-gray-600 cursor-not-allowed text-gray-300' : 'bg-gradient-to-r from-indigo-500 to-blue-500 text-white'}`}
-          >
-            <span className="text-xl font-bold">{room.name}</span>
-            <span className="text-lg font-semibold">Ksh.{room.price}</span>
-          </button>
-        ))}
-      </div>
-      {selectedRoom && (
-        <div className="bg-white p-8 rounded-lg shadow-2xl mt-6 max-w-lg mx-auto border border-gray-300">
-          <h3 className="text-3xl font-semibold mb-6 text-gray-800">Booking Form</h3>
-          <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Customer Name:</span>
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              className="w-full mt-2 p-3 border border-gray-300 rounded focus:ring focus:ring-indigo-200"
-              placeholder="Enter customer's name"
-            />
-          </label>
-          <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Booking Amount:</span>
-            <input
-              type="text"
-              value={bookingAmount}
-              onChange={(e) => setBookingAmount(e.target.value)}
-              className="w-full mt-2 p-3 border border-gray-300 rounded focus:ring focus:ring-indigo-200"
-              placeholder="Enter booking amount"
-            />
-          </label>
-          <label className="block mb-4">
-            <span className="text-gray-700 font-medium">Booking Date:</span>
-            <input
-              type="date"
-              value={bookingDate}
-              onChange={(e) => setBookingDate(e.target.value)}
-              className="w-full mt-2 p-3 border border-gray-300 rounded focus:ring focus:ring-indigo-200"
-            />
-          </label>
-          <button
-            onClick={handleBooking}
-            className="w-full bg-gradient-to-r from-green-400 to-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-all ease-in-out duration-300"
-          >
-            Book Room
-          </button>
-          {errorMessage && (
-            <p className="mt-4 text-red-500 font-semibold">{errorMessage}</p>
-          )}
+
+      {/* Room List */}
+      {!showBookingForm && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+          {rooms.map((room) => (
+            <button
+              key={room.name}
+              onClick={() => handleRoomClick(room)}
+              disabled={room.booked}
+              className={`flex items-center justify-between p-3 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg text-sm sm:text-base ${
+                room.booked
+                  ? 'bg-gray-700 cursor-not-allowed text-gray-400'
+                  : 'bg-gray-800 font-bold'
+              }`}
+            >
+              <span style={{ color: '#24f21d' }}>{room.name}</span>
+              <span className="text-white">Ksh.{room.price}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Booking Form Modal */}
+      {showBookingForm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl max-w-md mx-auto border border-gray-500">
+            <h3 className="text-2xl font-semibold mb-2 text-white">Booking Form</h3>
+            <label className="block mb-2">
+              <span className="text-gray-300 font-medium">Customer Name:</span>
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-500 rounded bg-gray-700 text-white focus:ring"
+                style={{ borderColor: '#24f21d' }}
+                placeholder="Enter customer's name"
+              />
+            </label>
+            <label className="block mb-3">
+              <span className="text-gray-300 font-medium">Booking Amount:</span>
+              <input
+                type="text"
+                value={bookingAmount}
+                onChange={(e) => setBookingAmount(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-500 rounded bg-gray-700 text-white focus:ring"
+                style={{ borderColor: '#24f21d' }}
+                placeholder="Enter booking amount"
+              />
+            </label>
+            <label className="block mb-3">
+              <span className="text-gray-300 font-medium">Booking Date:</span>
+              <input
+                type="date"
+                value={bookingDate}
+                onChange={(e) => setBookingDate(e.target.value)}
+                className="w-full mt-1 p-2 border border-gray-500 rounded bg-gray-700 text-white focus:ring"
+                style={{ borderColor: '#24f21d' }}
+              />
+            </label>
+            <button
+              onClick={handleBooking}
+              className="w-full py-2 rounded-lg font-semibold transition-all ease-in-out duration-300"
+              style={{ backgroundColor: '#24f21d', color: 'black' }}
+            >
+              Book Room
+            </button>
+            <button
+              onClick={() => setShowBookingForm(false)}
+              className="w-full py-2 mt-4 text-gray-400 hover:text-white transition-all ease-in-out duration-300"
+            >
+              Cancel
+            </button>
+            {errorMessage && (
+              <p className="mt-4 text-red-500 font-semibold">{errorMessage}</p>
+            )}
+          </div>
         </div>
       )}
     </div>
@@ -155,3 +178,7 @@ const RoomBooking = () => {
 };
 
 export default RoomBooking;
+
+
+
+
