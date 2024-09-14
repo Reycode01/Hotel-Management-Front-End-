@@ -12,7 +12,6 @@ const Salaries = () => {
   const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    // Fetch the initial list of salaries when the component mounts
     const fetchSalaries = async () => {
       try {
         const { data } = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/salaries');
@@ -37,7 +36,6 @@ const Salaries = () => {
 
     if (!employeeName.trim() || hours <= 0 || pay <= 0 || isNaN(hours) || isNaN(pay) || isNaN(damages) || !date) {
       setErrorMessage('Please fill in all fields correctly.');
-      console.log('Validation failed:', { employeeName, hours, pay, damages, date });
       return;
     }
 
@@ -56,11 +54,9 @@ const Salaries = () => {
       setSuccessMessage('Salary successfully added.');
       setErrorMessage('');
 
-      // Fetch updated salaries list
       const { data } = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/salaries');
       setSalariesList(data.salaries);
 
-      // Clear form fields
       setEmployeeName('');
       setHoursWorked('');
       setTotalPay('');
@@ -81,8 +77,7 @@ const Salaries = () => {
     try {
       await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/salaries/${id}`);
       setSuccessMessage('Salary record deleted successfully!');
-      
-      // Remove the deleted salary from the list
+
       setSalariesList(salariesList.filter(salary => salary.id !== id));
     } catch (error) {
       console.error('Error deleting salary:', error);
@@ -91,107 +86,108 @@ const Salaries = () => {
   };
 
   return (
-    <div className="p-6 bg-gradient-to-br from-green-100 via-yellow-200 to-red-300">
-      <h2 className="text-4xl font-bold mb-6 text-gray-800 text-center bg-gradient-to-r from-green-500 via-yellow-500 to-red-500 bg-clip-text text-transparent">
-        Daily Salaries
-      </h2>
-      <div className="bg-white p-6 rounded-lg shadow-lg w-full mx-auto">
+    <div className="flex justify-center items-center bg-gray-900 py-4">
+      <div className="p-5 bg-gray-800 bg-opacity-90 rounded-xl shadow-lg w-full border border-gray-700 backdrop-blur-md">
+        <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500 mb-8">
+          Daily Salaries
+        </h2>
+
         {successMessage && (
-          <div className="bg-green-100 border border-green-300 text-green-700 px-4 py-3 rounded mb-4">
+          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-2 rounded-lg mb-4 animate-bounce shadow-md">
             {successMessage}
           </div>
         )}
         {errorMessage && (
-          <div className="bg-red-100 border border-red-300 text-red-700 px-4 py-3 rounded mb-4">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-2 rounded-lg mb-4 animate-shake shadow-md">
             {errorMessage}
           </div>
         )}
-        <div className="grid grid-cols-1 gap-4 mb-4">
-          {/* Input fields */}
+
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Employee Name</label>
+            <label className="block text-sm font-semibold mb-2 text-teal-300">Employee Name</label>
             <input
               type="text"
               value={employeeName}
               onChange={(e) => setEmployeeName(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-teal-500 bg-gray-900 text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-105"
               placeholder="Enter employee name"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Hours Worked</label>
+            <label className="block text-sm font-semibold mb-2 text-teal-300">Hours Worked</label>
             <input
               type="number"
               value={hoursWorked}
               onChange={(e) => setHoursWorked(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter number of hours"
+              className="w-full px-4 py-2 border border-teal-500 bg-gray-900 text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-105"
+              placeholder="Enter hours worked"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Total Pay (Ksh)</label>
+            <label className="block text-sm font-semibold mb-2 text-teal-300">Total Pay (Ksh)</label>
             <input
               type="number"
               value={totalPay}
               onChange={(e) => setTotalPay(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-teal-500 bg-gray-900 text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-105"
               placeholder="Enter total pay"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Total Damages (Ksh)</label>
+            <label className="block text-sm font-semibold mb-2 text-teal-300">Total Damages (Ksh)</label>
             <input
               type="number"
               value={totalDamages}
               onChange={(e) => setTotalDamages(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-teal-500 bg-gray-900 text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-105"
               placeholder="Enter total damages"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Date</label>
+            <label className="block text-sm font-semibold mb-2 text-teal-300">Date</label>
             <input
               type="date"
               value={date}
               onChange={(e) => setDate(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Select date"
+              className="w-full px-4 py-2 border border-teal-500 bg-gray-900 text-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 transition-transform transform hover:scale-105"
             />
           </div>
-          <div>
-            <p className="block text-sm font-medium text-gray-700">
-              Final Total Pay (Ksh): {calculateFinalTotalPay(Number(totalPay), Number(totalDamages)).toLocaleString() || 'N/A'}
+          <div className="flex items-center">
+            <p className="text-lg font-semibold text-teal-400">
+              Final Pay: Ksh {calculateFinalTotalPay(Number(totalPay), Number(totalDamages)).toLocaleString() || 'N/A'}
             </p>
           </div>
         </div>
+
         <button
           onClick={handleSubmit}
-          className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white p-3 rounded-lg shadow-lg hover:bg-gradient-to-l from-blue-600 to-indigo-700 transition-colors"
+          className="mt-6 w-full bg-gradient-to-r from-purple-500 to-teal-400 text-white py-3 rounded-lg shadow-lg hover:bg-gradient-to-l transform transition-all hover:scale-100"
         >
           Add Salary
         </button>
       </div>
 
       {salariesList.length > 0 && (
-        <div className="mt-8 bg-white p-6 rounded-lg shadow-lg w-full mx-auto">
-          <h3 className="text-2xl font-semibold mb-4 text-gray-800">Salaries List</h3>
-          <ul className="space-y-4">
+        <div className="mt-12 p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg w-full max-w-4xl border border-gray-700 backdrop-blur-md">
+          <h3 className="text-3xl font-semibold mb-6 text-teal-300">Salaries List</h3>
+          <ul className="space-y-6">
             {salariesList.map((salary) => (
               <li
                 key={salary.id}
-                className="flex justify-between items-center bg-gradient-to-r from-purple-400 to-pink-500 text-white p-4 rounded-lg shadow-md"
+                className="flex justify-between items-center bg-gradient-to-r from-teal-500 to-purple-500 text-white p-6 rounded-lg shadow-md transform hover:scale-105 transition-all"
               >
                 <div>
-                  <p className="text-lg font-bold">{salary.employee_name}</p>
-                  <p className="text-sm">Hours Worked: {salary.hours_worked.toLocaleString()}</p>
-                  <p className="text-sm">Total Pay: Ksh {salary.total_pay.toLocaleString()}</p>
-                  <p className="text-sm">Total Damages: Ksh {salary.total_damages.toLocaleString()}</p>
-                  <p className="text-sm">Date: {new Date(salary.date).toLocaleDateString()}</p>
-                  <p className="text-sm font-bold">Final Total Pay: Ksh {salary.final_total_pay.toLocaleString()}</p>
+                  <p className="text-xl font-bold">{salary.employee_name}</p>
+                  <p>Hours Worked: {salary.hours_worked.toLocaleString()}</p>
+                  <p>Total Pay: Ksh {salary.total_pay.toLocaleString()}</p>
+                  <p>Total Damages: Ksh {salary.total_damages.toLocaleString()}</p>
+                  <p>Date: {new Date(salary.date).toLocaleDateString()}</p>
+                  <p className="font-bold">Final Total Pay: Ksh {salary.final_total_pay.toLocaleString()}</p>
                 </div>
                 <button
                   onClick={() => handleDelete(salary.id)}
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-full transition-colors"
+                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg transition-all"
                 >
                   Delete
                 </button>
@@ -205,5 +201,9 @@ const Salaries = () => {
 };
 
 export default Salaries;
+
+
+
+
 
 
