@@ -87,7 +87,7 @@ const Salaries = () => {
 
   return (
     <div className="flex flex-col items-center bg-gray-900 py-4 px-4">
-      <div className="p-5 bg-gray-800 bg-opacity-90 rounded-xl shadow-lg w-full max-w-3xl border border-gray-700 backdrop-blur-md">
+      <div className="p-5 bg-gray-800 bg-opacity-90 rounded-xl shadow-lg w-full border border-gray-700 backdrop-blur-md">
         <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500 mb-8">
           Daily Salaries
         </h2>
@@ -169,7 +169,7 @@ const Salaries = () => {
       </div>
 
       {salariesList.length > 0 && (
-        <div className="mt-12 p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg w-full max-w-3xl border border-gray-700 backdrop-blur-md">
+        <div className="mt-12 p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg w-full border border-gray-700 backdrop-blur-md">
           <h3 className="text-2xl font-semibold mb-6 text-teal-300">Salaries List</h3>
           <ul className="space-y-3">
             {salariesList.map((salary) => (
