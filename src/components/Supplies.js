@@ -79,6 +79,22 @@ const Supplies = () => {
     }
   };
 
+  // Define the handleDelete function
+  const handleDelete = async (id) => {
+    try {
+      // Send DELETE request to backend
+      await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/supplies/${id}`);
+
+      // Fetch the updated supplies list after deletion
+      fetchSupplies();
+
+      setSuccessMessage('Supply deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete supply', error);
+      setErrorMessage('Failed to delete supply. Please try again.');
+    }
+  };
+
   return (
     <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-200 to-pink-300">
       <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center" style={{ fontFamily: 'Carrington, sans-serif' }}>
@@ -185,14 +201,14 @@ const Supplies = () => {
             className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
-
-        {/* Submit Button */}
-        <button
-          onClick={handleSubmit}
-          className="w-full bg-gradient-to-r from-green-400 to-green-600 text-white p-3 rounded-lg shadow-lg hover:bg-gradient-to-l from-green-500 to-green-700 transition-colors"
-        >
-          Add Supplies
-        </button>
+        <div className="text-center">
+          <button
+            onClick={handleSubmit}
+            className="bg-gradient-to-r from-teal-400 to-cyan-500 text-white px-6 py-3 rounded-lg font-bold shadow-md hover:shadow-lg transition-transform transform hover:scale-105 focus:outline-none"
+          >
+            Add Supply
+          </button>
+        </div>
       </div>
 
       <div className="bg-white p-6 rounded-lg shadow-lg mt-6 max-w-full mx-auto">
