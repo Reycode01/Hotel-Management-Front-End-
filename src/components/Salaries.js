@@ -169,9 +169,9 @@ const Salaries = () => {
       </div>
 
       {salariesList.length > 0 && (
-        <div className="mt-12 p-6 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg w-full border border-gray-700 backdrop-blur-md">
-          <h3 className="text-2xl font-semibold mb-6 text-teal-300">Salaries List</h3>
-          <ul className="space-y-3">
+        <div className="mt-12 p-3 bg-gray-800 bg-opacity-90 rounded-lg shadow-lg w-full border border-gray-700 backdrop-blur-md">
+          <h3 className="text-2xl font-semibold mb-3 text-teal-300">Salaries List</h3>
+          <ul className="space-y-1">
             {salariesList.map((salary) => (
               <li
                 key={salary.id}
