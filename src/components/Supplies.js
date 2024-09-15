@@ -3,13 +3,13 @@ import axios from 'axios';
 
 const Supplies = () => {
   const [supplyName, setSupplyName] = useState('');
-  const [amount, setAmount] = useState(''); // Total cost in Ksh
-  const [quantity, setQuantity] = useState(''); // Quantity of the supply
-  const [unit, setUnit] = useState(''); // Flexible unit input
-  const [supplyDate, setSupplyDate] = useState(''); // New date field
+  const [amount, setAmount] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [unit, setUnit] = useState('');
+  const [supplyDate, setSupplyDate] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [supplies, setSupplies] = useState([]); // Stores the list of supplies
+  const [supplies, setSupplies] = useState([]);
   const [activeTab, setActiveTab] = useState('');
 
   // Fetch supplies from backend when component mounts
@@ -21,7 +21,7 @@ const Supplies = () => {
   const fetchSupplies = async () => {
     try {
       const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/supplies');
-      setSupplies(response.data); // Assuming your backend returns a list of supplies
+      setSupplies(response.data);
     } catch (error) {
       console.error('Failed to fetch supplies', error);
     }
@@ -29,13 +29,8 @@ const Supplies = () => {
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    setUnit(''); // Reset unit on tab change
-    setSupplyName('');
-    setAmount('');
-    setQuantity('');
-    setSupplyDate('');
-    setSuccessMessage(''); // Clear success message on tab change
-    setErrorMessage(''); // Clear error message on tab change
+    setSuccessMessage('');
+    setErrorMessage('');
   };
 
   const handleSubmit = async () => {
@@ -44,12 +39,11 @@ const Supplies = () => {
       const formattedQuantity = parseFloat(quantity);
 
       // Validate fields
-      if (!supplyName.trim() || isNaN(formattedAmount) || isNaN(formattedQuantity) || !unit || !supplyDate) {
+      if (!supplyName || isNaN(formattedAmount) || isNaN(formattedQuantity) || !unit || !supplyDate) {
         setErrorMessage('Please fill in all fields correctly.');
         return;
       }
 
-      // Create supply object
       const newSupply = {
         name: supplyName,
         amount: formattedAmount,
@@ -58,93 +52,54 @@ const Supplies = () => {
         supplyDate,
       };
 
-      // Send new supply to backend
+      // Post new supply to backend
       await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
 
-      // Display success message
       setSuccessMessage('Supply added successfully!');
-
-      // Fetch the updated supplies list
-      fetchSupplies();
-
-      // Reset the form fields
-      setSupplyName('');
-      setAmount('');
-      setQuantity('');
-      setUnit('');
-      setSupplyDate('');
+      setErrorMessage('');
+      fetchSupplies(); // Refresh the list
+      resetForm(); // Reset form fields
     } catch (error) {
-      console.error('Failed to add supplies. Please try again.', error);
-      setErrorMessage('An error occurred while adding the supply.');
+      console.error('Error adding supply', error);
+      setErrorMessage('Failed to add supply.');
     }
   };
 
-  // Define the handleDelete function
+  // Reset form after submission
+  const resetForm = () => {
+    setSupplyName('');
+    setAmount('');
+    setQuantity('');
+    setUnit('');
+    setSupplyDate('');
+  };
+
+  // Handle supply deletion
   const handleDelete = async (id) => {
     try {
-      // Send DELETE request to backend
       await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/supplies/${id}`);
-
-      // Fetch the updated supplies list after deletion
-      fetchSupplies();
-
       setSuccessMessage('Supply deleted successfully!');
+      fetchSupplies(); // Refresh the list
     } catch (error) {
-      console.error('Failed to delete supply', error);
-      setErrorMessage('Failed to delete supply. Please try again.');
+      console.error('Error deleting supply', error);
+      setErrorMessage('Failed to delete supply.');
     }
   };
 
   return (
     <div className="p-6 bg-gradient-to-br from-indigo-100 via-purple-200 to-pink-300">
-      <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center" style={{ fontFamily: 'Carrington, sans-serif' }}>
-        Daily Supplies
-      </h2>
+      <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center">Daily Supplies</h2>
+      
+      {/* Add New Supply Section */}
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-full mx-auto">
-        <div className="flex flex-wrap gap-2 mb-4">
-          {/* Tab Buttons */}
-          <button
-            onClick={() => handleTabClick('meat')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${activeTab === 'meat' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'}`}
-          >
-            Meat
-          </button>
-          <button
-            onClick={() => handleTabClick('vegetables')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${activeTab === 'vegetables' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'}`}
-          >
-            Vegetables
-          </button>
-          <button
-            onClick={() => handleTabClick('drinks')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${activeTab === 'drinks' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'}`}
-          >
-            Drinks
-          </button>
-          <button
-            onClick={() => handleTabClick('detergents')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${activeTab === 'detergents' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'}`}
-          >
-            Detergents
-          </button>
-          <button
-            onClick={() => handleTabClick('cereals')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${activeTab === 'cereals' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'}`}
-          >
-            Cereals
-          </button>
-        </div>
-
         <h3 className="text-2xl font-semibold mb-4 text-gray-800">Add New Supply</h3>
-
-        {/* Success Message */}
+        
+        {/* Success/Error Messages */}
         {successMessage && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {successMessage}
           </div>
         )}
-
-        {/* Error Message */}
         {errorMessage && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {errorMessage}
@@ -158,7 +113,7 @@ const Supplies = () => {
             type="text"
             value={supplyName}
             onChange={(e) => setSupplyName(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg"
             placeholder="Enter supply name"
           />
         </div>
@@ -168,7 +123,7 @@ const Supplies = () => {
             type="number"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg"
             placeholder="Enter total cost"
           />
         </div>
@@ -178,8 +133,8 @@ const Supplies = () => {
             type="number"
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder={`Enter quantity in ${unit}`}
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            placeholder="Enter quantity"
           />
         </div>
         <div className="mb-4">
@@ -188,8 +143,8 @@ const Supplies = () => {
             type="text"
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter unit (e.g., kg, g, liters, crate)"
+            className="w-full p-3 border border-gray-300 rounded-lg"
+            placeholder="Enter unit (e.g., kg, g, liters)"
           />
         </div>
         <div className="mb-4">
@@ -198,22 +153,23 @@ const Supplies = () => {
             type="date"
             value={supplyDate}
             onChange={(e) => setSupplyDate(e.target.value)}
-            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-300 rounded-lg"
           />
         </div>
         <div className="text-center">
           <button
             onClick={handleSubmit}
-            className="bg-gradient-to-r from-teal-400 to-cyan-500 text-white px-6 py-3 rounded-lg font-bold shadow-md hover:shadow-lg transition-transform transform hover:scale-105 focus:outline-none"
+            className="bg-gradient-to-r from-teal-400 to-cyan-500 text-white px-6 py-3 rounded-lg font-bold shadow-md"
           >
             Add Supply
           </button>
         </div>
       </div>
 
+      {/* Supplies List Section */}
       <div className="bg-white p-6 rounded-lg shadow-lg mt-6 max-w-full mx-auto">
         <h3 className="text-2xl font-semibold mb-4 text-gray-800">Supplies List</h3>
-        {/* Supplies List */}
+
         {supplies.length === 0 ? (
           <p className="text-gray-600">No supplies added yet.</p>
         ) : (
@@ -227,7 +183,7 @@ const Supplies = () => {
                   </p>
                 </div>
                 <button
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition-colors"
+                  className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md"
                   onClick={() => handleDelete(supply.id)}
                 >
                   Delete
