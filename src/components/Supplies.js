@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const Supplies = () => {
@@ -10,13 +10,22 @@ const Supplies = () => {
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
   const [activeTab, setActiveTab] = useState('meat');
-  const [supplies, setSupplies] = useState({
-    meat: [],
-    vegetables: [],
-    drinks: [],
-    detergents: [],
-    cereals: [],
-  });
+  const [supplies, setSupplies] = useState([]);
+
+  useEffect(() => {
+    // Fetch supplies when the component mounts
+    fetchSupplies();
+  }, [activeTab]);
+
+  const fetchSupplies = async () => {
+    try {
+      const response = await axios.get(`https://hotel-management-backend-j1uy.onrender.com/api/supplies`);
+      setSupplies(response.data.supplies);
+    } catch (error) {
+      console.error('Error fetching supplies:', error);
+      setErrorMessage('An error occurred while fetching supplies.');
+    }
+  };
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -51,18 +60,13 @@ const Supplies = () => {
         supplyDate,
       };
 
-      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
-      const savedSupply = response.data;
-
-      setSupplies((prevSupplies) => ({
-        ...prevSupplies,
-        [activeTab]: [...prevSupplies[activeTab], savedSupply],
-      }));
+      await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
 
       setSuccessMessage('Supply added successfully!');
       resetForm();
+      fetchSupplies(); // Refresh supplies after adding
     } catch (error) {
-      console.error('Failed to add supply.', error);
+      console.error('Failed to add supply:', error);
       setErrorMessage('An error occurred while adding the supply.');
     }
   };
@@ -70,16 +74,10 @@ const Supplies = () => {
   const handleDelete = async (supplyId) => {
     try {
       await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/supplies/${supplyId}`);
-
-      // Remove the supply from the list
-      setSupplies((prevSupplies) => ({
-        ...prevSupplies,
-        [activeTab]: prevSupplies[activeTab].filter((supply) => supply.id !== supplyId),
-      }));
-
       setSuccessMessage('Supply deleted successfully!');
+      fetchSupplies(); // Refresh supplies after deleting
     } catch (error) {
-      console.error('Failed to delete supply.', error);
+      console.error('Failed to delete supply:', error);
       setErrorMessage('An error occurred while deleting the supply.');
     }
   };
@@ -99,38 +97,7 @@ const Supplies = () => {
           >
             Meat
           </button>
-          <button
-            onClick={() => handleTabClick('vegetables')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'vegetables' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
-            }`}
-          >
-            Vegetables
-          </button>
-          <button
-            onClick={() => handleTabClick('drinks')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'drinks' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
-            }`}
-          >
-            Drinks
-          </button>
-          <button
-            onClick={() => handleTabClick('detergents')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'detergents' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
-            }`}
-          >
-            Detergents
-          </button>
-          <button
-            onClick={() => handleTabClick('cereals')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'cereals' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
-            }`}
-          >
-            Cereals
-          </button>
+          {/* Add buttons for other categories */}
         </div>
 
         <h3 className="text-2xl font-semibold mb-4 text-gray-800">Add New Supply</h3>
@@ -206,16 +173,17 @@ const Supplies = () => {
 
         <h3 className="text-xl font-semibold mt-6 text-gray-800">Supplies for {activeTab}</h3>
         <ul className="mt-4">
-          {supplies[activeTab].map((supply) => (
+          {supplies.map((supply) => (
             <li key={supply.id} className="bg-gray-100 p-3 rounded-lg mb-2 flex justify-between items-center">
               <div>
-                <p className="font-semibold">{supply.name}</p>
-                <p>{supply.quantity} {supply.unit} @ Ksh {supply.amount}</p>
-                <p>{supply.supplyDate}</p>
+                <p><strong>Name:</strong> {supply.name}</p>
+                <p><strong>Amount:</strong> Ksh {supply.amount}</p>
+                <p><strong>Quantity:</strong> {supply.quantity} {supply.unit}</p>
+                <p><strong>Date:</strong> {supply.supply_date}</p>
               </div>
               <button
                 onClick={() => handleDelete(supply.id)}
-                className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+                className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-700"
               >
                 Delete
               </button>
@@ -228,5 +196,3 @@ const Supplies = () => {
 };
 
 export default Supplies;
-
-
