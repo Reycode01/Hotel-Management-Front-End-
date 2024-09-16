@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 
 const Supplies = () => {
@@ -7,24 +7,30 @@ const Supplies = () => {
   const [quantity, setQuantity] = useState(''); // Quantity of the supply
   const [unit, setUnit] = useState(''); // Flexible unit input
   const [supplyDate, setSupplyDate] = useState(''); // New date field
-  const [supplies, setSupplies] = useState([]); // State to hold the supplies list
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [activeTab, setActiveTab] = useState('');
-
-  useEffect(() => {
-    fetchSupplies(); // Fetch supplies when the component mounts
-  }, []);
+  const [activeTab, setActiveTab] = useState('meat'); // Default to 'meat'
+  const [supplies, setSupplies] = useState({
+    meat: [],
+    vegetables: [],
+    drinks: [],
+    detergents: [],
+    cereals: [],
+  }); // Stores the supplies for each category
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
-    setUnit(''); // Reset unit on tab change
+    resetForm();
+  };
+
+  const resetForm = () => {
     setSupplyName('');
     setAmount('');
     setQuantity('');
+    setUnit('');
     setSupplyDate('');
-    setSuccessMessage(''); // Clear success message on tab change
-    setErrorMessage(''); // Clear error message on tab change
+    setSuccessMessage('');
+    setErrorMessage('');
   };
 
   const handleSubmit = async () => {
@@ -50,30 +56,18 @@ const Supplies = () => {
       // Update URL to match your backend endpoint
       await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
 
+      // Update supplies list for the active category
+      setSupplies((prevSupplies) => ({
+        ...prevSupplies,
+        [activeTab]: [...prevSupplies[activeTab], newSupply],
+      }));
+
       // Display success message
       setSuccessMessage('Supply added successfully!');
-
-      // Reset the form fields
-      setSupplyName('');
-      setAmount('');
-      setQuantity('');
-      setUnit('');
-      setSupplyDate('');
-
-      // Fetch the updated supplies list
-      fetchSupplies();
+      resetForm();
     } catch (error) {
       console.error('Failed to add supplies. Please try again.', error);
       setErrorMessage('An error occurred while adding the supply.');
-    }
-  };
-
-  const fetchSupplies = async () => {
-    try {
-      const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/supplies');
-      setSupplies(response.data); // Update the supplies state with the fetched data
-    } catch (error) {
-      console.error('Failed to fetch supplies:', error);
     }
   };
 
@@ -87,11 +81,44 @@ const Supplies = () => {
           {/* Tab Buttons */}
           <button
             onClick={() => handleTabClick('meat')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${activeTab === 'meat' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'}`}
+            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+              activeTab === 'meat' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
+            }`}
           >
             Meat
           </button>
-          {/* Other tab buttons */}
+          <button
+            onClick={() => handleTabClick('vegetables')}
+            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+              activeTab === 'vegetables' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
+            }`}
+          >
+            Vegetables
+          </button>
+          <button
+            onClick={() => handleTabClick('drinks')}
+            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+              activeTab === 'drinks' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
+            }`}
+          >
+            Drinks
+          </button>
+          <button
+            onClick={() => handleTabClick('detergents')}
+            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+              activeTab === 'detergents' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
+            }`}
+          >
+            Detergents
+          </button>
+          <button
+            onClick={() => handleTabClick('cereals')}
+            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+              activeTab === 'cereals' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-400'
+            }`}
+          >
+            Cereals
+          </button>
         </div>
 
         <h3 className="text-2xl font-semibold mb-4 text-gray-800">Add New Supply</h3>
@@ -170,22 +197,22 @@ const Supplies = () => {
         </button>
 
         {/* Supplies List */}
-        <h3 className="text-2xl font-semibold mt-8 text-gray-800">Supplies List</h3>
-        {supplies.length > 0 ? (
-          <ul className="mt-4 space-y-4">
-            {supplies.map((supply, index) => (
-              <li key={index} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                <strong>{supply.name}</strong> - {supply.quantity} {supply.unit} @ {supply.amount} Ksh (Date: {new Date(supply.supplyDate).toLocaleDateString()})
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500 mt-4">No supplies available. Please add a new supply.</p>
-        )}
+        <h3 className="text-xl font-semibold mt-6 text-gray-800">Supplies for {activeTab}</h3>
+        <ul className="mt-4">
+          {supplies[activeTab].map((supply, index) => (
+            <li key={index} className="bg-gray-100 p-3 rounded-lg mb-2">
+              <p className="font-semibold">{supply.name}</p>
+              <p>Amount: Ksh {supply.amount}</p>
+              <p>Quantity: {supply.quantity} {supply.unit}</p>
+              <p>Date: {supply.supplyDate}</p>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 };
 
 export default Supplies;
+
 
