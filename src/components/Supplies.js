@@ -3,20 +3,20 @@ import axios from 'axios';
 
 const Supplies = () => {
   const [supplyName, setSupplyName] = useState('');
-  const [amount, setAmount] = useState(''); // Total cost in Ksh
-  const [quantity, setQuantity] = useState(''); // Quantity of the supply
-  const [unit, setUnit] = useState(''); // Flexible unit input
-  const [supplyDate, setSupplyDate] = useState(''); // New date field
+  const [amount, setAmount] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [unit, setUnit] = useState('');
+  const [supplyDate, setSupplyDate] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
-  const [activeTab, setActiveTab] = useState('meat'); // Default to 'meat'
+  const [activeTab, setActiveTab] = useState('meat');
   const [supplies, setSupplies] = useState({
     meat: [],
     vegetables: [],
     drinks: [],
     detergents: [],
     cereals: [],
-  }); // Stores the supplies for each category
+  });
 
   const handleTabClick = (tab) => {
     setActiveTab(tab);
@@ -38,13 +38,11 @@ const Supplies = () => {
       const formattedAmount = parseFloat(amount);
       const formattedQuantity = parseFloat(quantity);
 
-      // Validate fields
       if (!supplyName.trim() || isNaN(formattedAmount) || isNaN(formattedQuantity) || !unit || !supplyDate) {
         setErrorMessage('Please fill in all fields correctly.');
         return;
       }
 
-      // Create supply object
       const newSupply = {
         name: supplyName,
         amount: formattedAmount,
@@ -53,21 +51,36 @@ const Supplies = () => {
         supplyDate,
       };
 
-      // Update URL to match your backend endpoint
-      await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
+      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
+      const savedSupply = response.data;
 
-      // Update supplies list for the active category
       setSupplies((prevSupplies) => ({
         ...prevSupplies,
-        [activeTab]: [...prevSupplies[activeTab], newSupply],
+        [activeTab]: [...prevSupplies[activeTab], savedSupply],
       }));
 
-      // Display success message
       setSuccessMessage('Supply added successfully!');
       resetForm();
     } catch (error) {
-      console.error('Failed to add supplies. Please try again.', error);
+      console.error('Failed to add supply.', error);
       setErrorMessage('An error occurred while adding the supply.');
+    }
+  };
+
+  const handleDelete = async (supplyId) => {
+    try {
+      await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/supplies/${supplyId}`);
+
+      // Remove the supply from the list
+      setSupplies((prevSupplies) => ({
+        ...prevSupplies,
+        [activeTab]: prevSupplies[activeTab].filter((supply) => supply.id !== supplyId),
+      }));
+
+      setSuccessMessage('Supply deleted successfully!');
+    } catch (error) {
+      console.error('Failed to delete supply.', error);
+      setErrorMessage('An error occurred while deleting the supply.');
     }
   };
 
@@ -78,7 +91,6 @@ const Supplies = () => {
       </h2>
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-full mx-auto">
         <div className="flex flex-wrap gap-2 mb-4">
-          {/* Tab Buttons */}
           <button
             onClick={() => handleTabClick('meat')}
             className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
@@ -123,21 +135,18 @@ const Supplies = () => {
 
         <h3 className="text-2xl font-semibold mb-4 text-gray-800">Add New Supply</h3>
 
-        {/* Success Message */}
         {successMessage && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {successMessage}
           </div>
         )}
 
-        {/* Error Message */}
         {errorMessage && (
           <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
             {errorMessage}
           </div>
         )}
 
-        {/* Form Fields */}
         <div className="mb-4">
           <label className="block text-sm font-medium mb-2 text-gray-700">Supply Name</label>
           <input
@@ -188,7 +197,6 @@ const Supplies = () => {
           />
         </div>
 
-        {/* Submit Button */}
         <button
           onClick={handleSubmit}
           className="w-full bg-gradient-to-r from-green-400 to-green-600 text-white p-3 rounded-lg shadow-lg hover:bg-gradient-to-l from-green-500 to-green-700 transition-colors"
@@ -196,15 +204,21 @@ const Supplies = () => {
           Add Supplies
         </button>
 
-        {/* Supplies List */}
         <h3 className="text-xl font-semibold mt-6 text-gray-800">Supplies for {activeTab}</h3>
         <ul className="mt-4">
-          {supplies[activeTab].map((supply, index) => (
-            <li key={index} className="bg-gray-100 p-3 rounded-lg mb-2">
-              <p className="font-semibold">{supply.name}</p>
-              <p>Amount: Ksh {supply.amount}</p>
-              <p>Quantity: {supply.quantity} {supply.unit}</p>
-              <p>Date: {supply.supplyDate}</p>
+          {supplies[activeTab].map((supply) => (
+            <li key={supply.id} className="bg-gray-100 p-3 rounded-lg mb-2 flex justify-between items-center">
+              <div>
+                <p className="font-semibold">{supply.name}</p>
+                <p>{supply.quantity} {supply.unit} @ Ksh {supply.amount}</p>
+                <p>{supply.supplyDate}</p>
+              </div>
+              <button
+                onClick={() => handleDelete(supply.id)}
+                className="bg-red-500 text-white p-2 rounded-lg hover:bg-red-600 transition-colors"
+              >
+                Delete
+              </button>
             </li>
           ))}
         </ul>
