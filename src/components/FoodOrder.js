@@ -19,8 +19,8 @@ const FoodOrder = ({ onAddFoodOrder }) => {
           setFoodOrders(response.data.foodOrders.map(order => ({
             ...order,
             quantity: order.quantity || 0,
-            beverageQuantity: order.beverageQuantity || 0,
-            orderDate: new Date(order.orderDate).toISOString().split('T')[0] // Ensure date format
+            beverageQuantity: order.beverage_quantity || 0, // Correct the field from the backend
+            orderDate: new Date(order.order_date).toISOString().split('T')[0] // Ensure date format
           })));
         } else {
           setFoodOrders([]);
@@ -75,6 +75,23 @@ const FoodOrder = ({ onAddFoodOrder }) => {
       } else {
         setErrorMessage('Network error: Failed to connect to server.');
       }
+      setSuccessMessage('');
+    }
+  };
+
+  const handleDeleteFoodOrder = async (id) => {
+    try {
+      const response = await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/food-orders/${id}`);
+      if (response.status === 200) {
+        setFoodOrders(prevOrders => prevOrders.filter(order => order.id !== id));
+        setSuccessMessage('Food order deleted successfully!');
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Failed to delete food order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting food order:', error);
+      setErrorMessage('Failed to delete food order.');
       setSuccessMessage('');
     }
   };
@@ -173,17 +190,23 @@ const FoodOrder = ({ onAddFoodOrder }) => {
           <h3 className="text-2xl font-semibold mb-4 text-gray-800">Order List</h3>
           <ul>
             {foodOrders.length > 0 ? (
-              foodOrders.map((order, index) => (
-                <li key={index} className="bg-white p-4 mb-2 rounded-lg shadow-md">
-                  <p><strong>Food Type:</strong> {order.foodType}</p>
-                  <p><strong>Quantity:</strong> {order.quantity} {order.foodType === 'Vegetables' ? 'grams' : 'kg'}</p>
+              foodOrders.map((order) => (
+                <li key={order.id} className="bg-white p-4 mb-2 rounded-lg shadow-md">
+                  <p><strong>Food Type:</strong> {order.food_type}</p>
+                  <p><strong>Quantity:</strong> {order.quantity}</p>
                   <p><strong>Beverage:</strong> {order.beverage}</p>
-                  <p><strong>Beverage Quantity:</strong> {order.beverageQuantity || 0} liters</p>
-                  <p><strong>Order Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</p>
+                  <p><strong>Beverage Quantity:</strong> {order.beverage_quantity}</p>
+                  <p><strong>Order Date:</strong> {order.orderDate}</p>
+                  <button
+                    onClick={() => handleDeleteFoodOrder(order.id)}
+                    className="bg-red-500 text-white py-1 px-2 mt-2 rounded-lg hover:bg-red-600 focus:outline-none"
+                  >
+                    Delete Order
+                  </button>
                 </li>
               ))
             ) : (
-              <p>No orders yet.</p>
+              <p>No orders found.</p>
             )}
           </ul>
         </div>
