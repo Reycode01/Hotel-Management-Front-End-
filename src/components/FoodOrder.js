@@ -77,7 +77,9 @@ const FoodOrder = () => {
         Daily Food Orders
       </h2>
       <div className="bg-white p-6 rounded-lg shadow-lg w-full mx-auto">
+        {/* Form for adding new food orders */}
         <div className="grid grid-cols-1 gap-4 mb-4">
+          {/* Food Type Select */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700">Food Type</label>
             <select
@@ -90,6 +92,7 @@ const FoodOrder = () => {
               <option value="Cereals">Cereals</option>
             </select>
           </div>
+          {/* Quantity Input */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700">
               Quantity ({foodType === 'Vegetables' ? 'grams' : 'kg'})
@@ -104,6 +107,7 @@ const FoodOrder = () => {
             />
           </div>
         </div>
+        {/* Beverage Section */}
         <div className="grid grid-cols-1 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700">Beverage Type</label>
@@ -118,57 +122,60 @@ const FoodOrder = () => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">
-              Beverage Quantity (liters)
-            </label>
+            <label className="block text-sm font-medium mb-2 text-gray-700">Beverage Quantity (litres)</label>
             <input
               type="number"
               value={beverageQuantity}
               onChange={(e) => setBeverageQuantity(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter beverage quantity"
+              placeholder="Enter beverage quantity in litres"
               min="0"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Order Date</label>
-            <input
-              type="date"
-              value={orderDate}
-              onChange={(e) => setOrderDate(e.target.value)}
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
+        </div>
+        {/* Date Section */}
+        <div>
+          <label className="block text-sm font-medium mb-2 text-gray-700">Order Date</label>
+          <input
+            type="date"
+            value={orderDate}
+            onChange={(e) => setOrderDate(e.target.value)}
+            className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        {/* Add Order Button */}
+        <button
+          onClick={handleAddFoodOrder}
+          className="mt-4 w-full bg-green-500 text-white font-bold py-3 px-6 rounded-lg shadow-lg hover:bg-green-600"
+        >
+          Add Food Order
+        </button>
+        {/* Success/Error Messages */}
+        {errorMessage && <p className="mt-4 text-red-600">{errorMessage}</p>}
+        {successMessage && <p className="mt-4 text-green-600">{successMessage}</p>}
+      </div>
+      {/* List of Food Orders */}
+      <h3 className="mt-8 text-2xl font-bold mb-4 text-gray-800 text-center" style={{ fontFamily: "'Dancing Script', cursive" }}>
+        Orders
+      </h3>
+      <div className="grid grid-cols-1 gap-4">
+        {foodOrders.map((order) => (
+          <div key={order.id} className="bg-yellow-200 p-4 rounded-lg shadow-md flex justify-between items-center">
+            <div>
+              <p><strong>Food Type:</strong> {order.food_type}</p>
+              <p><strong>Quantity:</strong> {order.quantity} kg</p>
+              <p><strong>Beverage:</strong> {order.beverage}</p>
+              <p><strong>Beverage Quantity:</strong> {order.beverage_quantity} litres</p>
+              <p><strong>Order Date:</strong> {new Date(order.order_date).toLocaleDateString()}</p>
+            </div>
+            <button
+              onClick={() => handleDelete(order.id)}
+              className="ml-4 bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"
+            >
+              Delete
+            </button>
           </div>
-        </div>
-        {errorMessage && <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">{errorMessage}</div>}
-        {successMessage && <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">{successMessage}</div>}
-        <div className="flex justify-center">
-          <button onClick={handleAddFoodOrder} className="bg-green-500 text-white py-2 px-4 rounded-lg hover:bg-green-600">
-            Add Order
-          </button>
-        </div>
-
-        {/* Display food orders */}
-        <div className="mt-10">
-          <h3 className="text-2xl font-semibold mb-4 text-gray-800">Food Orders List</h3>
-          {foodOrders.length === 0 ? (
-            <p>No food orders available.</p>
-          ) : (
-            <ul className="space-y-4">
-              {foodOrders.map((order) => (
-                <li key={order.id} className="flex justify-between items-center p-4 bg-gray-100 rounded-lg shadow-md">
-                  <span>{order.foodType} - {order.quantity} {order.foodType === 'Vegetables' ? 'grams' : 'kg'}, {order.beverage} - {order.beverageQuantity} liters, Date: {new Date(order.orderDate).toLocaleDateString()}</span>
-                  <button
-                    onClick={() => handleDelete(order.id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+        ))}
       </div>
     </div>
   );
