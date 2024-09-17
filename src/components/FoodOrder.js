@@ -46,7 +46,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
       quantity: Number(quantity),
       beverage,
       beverageQuantity: beverageQuantity === '' ? null : Number(beverageQuantity),
-      orderDate
+      orderDate // Corrected line
     };
 
     try {
@@ -203,14 +203,14 @@ const FoodOrder = ({ onAddFoodOrder }) => {
                   </div>
                   <button
                     onClick={() => handleDeleteFoodOrder(order.id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded-lg mt-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
                   >
                     Delete
                   </button>
                 </li>
               ))
             ) : (
-              <li className="text-center text-yellow-300">No food orders found.</li>
+              <li className="text-center text-gray-400">No orders found</li>
             )}
           </ul>
         </div>
@@ -220,6 +220,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
 };
 
 export default FoodOrder;
+
 
 
 
