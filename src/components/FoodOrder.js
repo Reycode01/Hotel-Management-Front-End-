@@ -20,15 +20,10 @@ const FoodOrder = ({ onAddFoodOrder }) => {
             ...order,
             quantity: order.quantity || 0,
             beverageQuantity: order.beverage_quantity || 0,
-            orderDate: new Date(order.order_date).toISOString().split('T')[0]
+            orderDate: order.order_date ? new Date(order.order_date).toISOString().split('T')[0] : '' // Proper date formatting
           })));
-          // Ensure foodType is set to a default if no orders
-          if (response.data.foodOrders.length === 0) {
-            setFoodType('Meat'); // Default value
-          }
         } else {
           setFoodOrders([]);
-          setFoodType('Meat'); // Default value
         }
         setErrorMessage('');
       } catch (error) {
@@ -201,10 +196,10 @@ const FoodOrder = ({ onAddFoodOrder }) => {
               foodOrders.map(order => (
                 <li key={order.id} className="flex justify-between items-center bg-gray-700 p-4 mb-2 rounded-lg">
                   <div className="text-yellow-300">
-                    <div>{order.food_type}</div>
+                    <div>Food Type: {order.food_type}</div>
                     <div>Quantity: {order.quantity} {order.food_type === 'Vegetables' ? 'grams' : 'kg'}</div>
                     <div>Beverage: {order.beverage} ({order.beverage_quantity} liters)</div>
-                    <div>Date: {new Date(order.order_date).toLocaleDateString()}</div>
+                    <div>Date: {order.order_date}</div> {/* Ensure date is correctly formatted */}
                   </div>
                   <button
                     onClick={() => handleDeleteFoodOrder(order.id)}
@@ -225,6 +220,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
 };
 
 export default FoodOrder;
+
 
 
 
