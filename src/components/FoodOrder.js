@@ -11,70 +11,75 @@ const FoodOrder = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  // Fetch food orders from the backend
   useEffect(() => {
+    const fetchFoodOrders = async () => {
+      try {
+        const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/food-orders');
+        setFoodOrders(response.data.foodOrders || []);
+      } catch (error) {
+        console.error('Error fetching food orders:', error);
+        setErrorMessage('Failed to fetch food orders.');
+      }
+    };
+
     fetchFoodOrders();
   }, []);
 
-  const fetchFoodOrders = async () => {
-    try {
-      const response = await axios.get('/api/food-orders');
-      setFoodOrders(response.data);
-      setErrorMessage('');
-    } catch (error) {
-      setErrorMessage('Failed to fetch food orders.');
-    }
-  };
-
   const handleAddFoodOrder = async () => {
-    if (!foodType || !quantity || !beverage || !beverageQuantity || !orderDate) {
-      setErrorMessage('Please fill all fields.');
+    if (!foodType || quantity <= 0 || !beverage || beverageQuantity < 0 || !orderDate) {
+      setErrorMessage('Please fill in all fields correctly.');
       return;
     }
 
-    const newOrder = {
-      food_type: foodType,
-      quantity: parseFloat(quantity),
+    const newFoodOrder = {
+      foodType,
+      quantity: Number(quantity),
       beverage,
-      beverage_quantity: parseFloat(beverageQuantity),
-      order_date: new Date(orderDate).toISOString(),  // Ensure the date is properly formatted
+      beverageQuantity: Number(beverageQuantity),
+      orderDate
     };
 
     try {
-      const response = await axios.post('/api/food-orders', newOrder);
-      setFoodOrders([...foodOrders, response.data]);  // Add the new order to the current state
-      setSuccessMessage('Food order added successfully!');
-      setErrorMessage('');
-      // Clear form fields
-      setFoodType('Meat');
-      setQuantity('');
-      setBeverage('Water');
-      setBeverageQuantity('');
-      setOrderDate('');
+      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
+
+      if (response.status === 201) {
+        setFoodOrders([...foodOrders, { ...newFoodOrder, id: response.data.id }]);
+        setSuccessMessage('Food order added successfully!');
+        setErrorMessage('');
+
+        setFoodType('Meat');
+        setQuantity('');
+        setBeverage('Water');
+        setBeverageQuantity('');
+        setOrderDate('');
+      } else {
+        setErrorMessage('Failed to add food order. Please try again.');
+      }
     } catch (error) {
-      setErrorMessage('Failed to add food order.');
-      setSuccessMessage('');
+      setErrorMessage(error.response?.data?.error || 'Failed to add food order. Please try again.');
     }
   };
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`/api/food-orders/${id}`);
-      setFoodOrders(foodOrders.filter(order => order.id !== id));  // Remove the order from the list
-      setErrorMessage('');
+      await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/food-orders/${id}`);
+      setFoodOrders(foodOrders.filter(order => order.id !== id));
+      setSuccessMessage('Food order deleted successfully!');
     } catch (error) {
-      setErrorMessage('Failed to delete food order.');
+      setErrorMessage('Failed to delete food order. Please try again.');
     }
   };
 
   return (
-    <div className="container mx-auto px-4 py-6">
-      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800" style={{ fontFamily: "'Dancing Script', cursive" }}>
+    <div className="p-6 bg-gradient-to-br from-green-100 via-yellow-200 to-red-300">
+      <h2 className="text-3xl font-bold mb-6 text-gray-800 text-center" style={{ fontFamily: "'Dancing Script', cursive" }}>
         Daily Food Orders
       </h2>
-      <div className="bg-white p-6 rounded-lg shadow-lg">
-        {/* Form Fields */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          {/* Food Type Section */}
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full mx-auto">
+        {/* Form for adding new food orders */}
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          {/* Food Type Select */}
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700">Food Type</label>
             <select
@@ -84,24 +89,26 @@ const FoodOrder = () => {
             >
               <option value="Meat">Meat</option>
               <option value="Vegetables">Vegetables</option>
-              <option value="Fruits">Fruits</option>
+              <option value="Cereals">Cereals</option>
             </select>
           </div>
-          {/* Quantity Section */}
+          {/* Quantity Input */}
           <div>
-            <label className="block text-sm font-medium mb-2 text-gray-700">Quantity (kg)</label>
+            <label className="block text-sm font-medium mb-2 text-gray-700">
+              Quantity ({foodType === 'Vegetables' ? 'grams' : 'kg'})
+            </label>
             <input
               type="number"
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
               className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter quantity in kg"
+              placeholder={`Enter quantity in ${foodType === 'Vegetables' ? 'grams' : 'kg'}`}
               min="0"
             />
           </div>
         </div>
         {/* Beverage Section */}
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 mt-4">
+        <div className="grid grid-cols-1 gap-4 mb-4">
           <div>
             <label className="block text-sm font-medium mb-2 text-gray-700">Beverage Type</label>
             <select
@@ -127,7 +134,7 @@ const FoodOrder = () => {
           </div>
         </div>
         {/* Date Section */}
-        <div className="mt-4">
+        <div>
           <label className="block text-sm font-medium mb-2 text-gray-700">Order Date</label>
           <input
             type="date"
@@ -159,7 +166,7 @@ const FoodOrder = () => {
               <p><strong>Quantity:</strong> {order.quantity} kg</p>
               <p><strong>Beverage:</strong> {order.beverage}</p>
               <p><strong>Beverage Quantity:</strong> {order.beverage_quantity} litres</p>
-              <p><strong>Order Date:</strong> {new Date(order.order_date).toLocaleDateString()}</p> {/* Format Date */}
+              <p><strong>Order Date:</strong> {new Date(order.order_date).toLocaleDateString()}</p>
             </div>
             <button
               onClick={() => handleDelete(order.id)}
