@@ -15,8 +15,8 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     const fetchFoodOrders = async () => {
       try {
         const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/food-orders');
-        if (response.data && Array.isArray(response.data.foodOrders)) {
-          setFoodOrders(response.data.foodOrders.map(order => ({
+        if (response.data && Array.isArray(response.data)) {
+          setFoodOrders(response.data.map(order => ({
             ...order,
             quantity: order.quantity || 0,
             beverageQuantity: order.beverage_quantity || 0,
@@ -42,11 +42,11 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     }
 
     const newFoodOrder = {
-      foodType,
+      food_type: foodType,
       quantity: Number(quantity),
       beverage,
-      beverageQuantity: beverageQuantity === '' ? null : Number(beverageQuantity),
-      orderDate // Corrected line
+      beverage_quantity: beverageQuantity === '' ? null : Number(beverageQuantity),
+      order_date: orderDate // Corrected line
     };
 
     try {
@@ -210,7 +210,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
                 </li>
               ))
             ) : (
-              <li className="text-center text-gray-400">No orders found</li>
+              <li className="text-center text-yellow-300">No food orders found.</li>
             )}
           </ul>
         </div>
