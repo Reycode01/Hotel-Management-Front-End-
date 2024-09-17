@@ -16,7 +16,12 @@ const FoodOrder = () => {
     const fetchFoodOrders = async () => {
       try {
         const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/food-orders');
-        setFoodOrders(response.data.foodOrders || []);
+        if (response.data && response.data.foodOrders) {
+          setFoodOrders(response.data.foodOrders);
+        } else {
+          setFoodOrders([]);
+        }
+        setErrorMessage(''); // Clear any previous error message
       } catch (error) {
         console.error('Error fetching food orders:', error);
         setErrorMessage('Failed to fetch food orders.');
@@ -159,28 +164,33 @@ const FoodOrder = () => {
         Orders
       </h3>
       <div className="grid grid-cols-1 gap-4">
-        {foodOrders.map((order) => (
-          <div key={order.id} className="bg-yellow-200 p-4 rounded-lg shadow-md flex justify-between items-center">
-            <div>
-              <p><strong>Food Type:</strong> {order.food_type}</p>
-              <p><strong>Quantity:</strong> {order.quantity} kg</p>
-              <p><strong>Beverage:</strong> {order.beverage}</p>
-              <p><strong>Beverage Quantity:</strong> {order.beverage_quantity} litres</p>
-              <p><strong>Order Date:</strong> {new Date(order.order_date).toLocaleDateString()}</p>
+        {foodOrders.length > 0 ? (
+          foodOrders.map((order) => (
+            <div key={order.id} className="bg-yellow-200 p-4 rounded-lg shadow-md flex justify-between items-center">
+              <div>
+                <p><strong>Food Type:</strong> {order.food_type}</p>
+                <p><strong>Quantity:</strong> {order.quantity} kg</p>
+                <p><strong>Beverage:</strong> {order.beverage}</p>
+                <p><strong>Beverage Quantity:</strong> {order.beverage_quantity || 'N/A'} litres</p>
+                <p><strong>Order Date:</strong> {new Date(order.order_date).toLocaleDateString() || 'N/A'}</p>
+              </div>
+              <button
+                onClick={() => handleDelete(order.id)}
+                className="ml-4 bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"
+              >
+                Delete
+              </button>
             </div>
-            <button
-              onClick={() => handleDelete(order.id)}
-              className="ml-4 bg-red-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-red-600"
-            >
-              Delete
-            </button>
-          </div>
-        ))}
+          ))
+        ) : (
+          <p className="text-center text-gray-600">No food orders available.</p>
+        )}
       </div>
     </div>
   );
 };
 
 export default FoodOrder;
+
 
 
