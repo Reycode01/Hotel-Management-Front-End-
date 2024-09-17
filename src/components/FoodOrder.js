@@ -196,10 +196,10 @@ const FoodOrder = ({ onAddFoodOrder }) => {
               foodOrders.map(order => (
                 <li key={order.id} className="flex justify-between items-center bg-gray-700 p-4 mb-2 rounded-lg">
                   <div className="text-yellow-300">
-                    <div>Food Type: {order.food_type}</div>
-                    <div>Quantity: {order.quantity} {order.food_type === 'Vegetables' ? 'grams' : 'kg'}</div>
-                    <div>Beverage: {order.beverage} ({order.beverage_quantity} liters)</div>
-                    <div>Date: {order.order_date}</div> {/* Ensure date is correctly formatted */}
+                    <div>Food Type: {order.foodType}</div>
+                    <div>Quantity: {order.quantity} {order.foodType === 'Vegetables' ? 'grams' : 'kg'}</div>
+                    <div>Beverage: {order.beverage} ({order.beverageQuantity} liters)</div>
+                    <div>Date: {order.orderDate}</div> {/* Ensure date is correctly formatted */}
                   </div>
                   <button
                     onClick={() => handleDeleteFoodOrder(order.id)}
@@ -210,7 +210,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
                 </li>
               ))
             ) : (
-              <li className="text-center text-gray-400">No orders found</li>
+              <li className="text-center text-yellow-300">No orders found</li>
             )}
           </ul>
         </div>
