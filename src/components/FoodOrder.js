@@ -48,6 +48,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     try {
       const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
       if (response.status === 201) {
+        // Update the order list
         setFoodOrders([...foodOrders, newFoodOrder]);
         if (typeof onAddFoodOrder === 'function') {
           onAddFoodOrder(newFoodOrder);
@@ -166,6 +167,24 @@ const FoodOrder = ({ onAddFoodOrder }) => {
           >
             Add Order
           </button>
+        </div>
+        <div className="mt-8">
+          <h3 className="text-2xl font-semibold mb-4 text-gray-800">Order List</h3>
+          <ul>
+            {foodOrders.length > 0 ? (
+              foodOrders.map((order, index) => (
+                <li key={index} className="bg-white p-4 mb-2 rounded-lg shadow-md">
+                  <p><strong>Food Type:</strong> {order.foodType}</p>
+                  <p><strong>Quantity:</strong> {order.quantity} {order.foodType === 'Vegetables' ? 'grams' : 'kg'}</p>
+                  <p><strong>Beverage:</strong> {order.beverage}</p>
+                  <p><strong>Beverage Quantity:</strong> {order.beverageQuantity} liters</p>
+                  <p><strong>Order Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</p>
+                </li>
+              ))
+            ) : (
+              <p>No orders yet.</p>
+            )}
+          </ul>
         </div>
       </div>
     </div>
