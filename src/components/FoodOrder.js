@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const FoodOrder = ({ onAddFoodOrder }) => {
-  const [foodType, setFoodType] = useState('Meat'); // Default to Meat
+  const [foodType, setFoodType] = useState('Meat');
   const [quantity, setQuantity] = useState('');
   const [beverage, setBeverage] = useState('Water');
   const [beverageQuantity, setBeverageQuantity] = useState('');
@@ -19,7 +19,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
           setFoodOrders(response.data.foodOrders.map(order => ({
             ...order,
             quantity: order.quantity || 0,
-            beverageQuantity: order.beverage_quantity || 0, // Default to 0 if empty
+            beverageQuantity: order.beverage_quantity || 0,
             orderDate: new Date(order.order_date).toISOString().split('T')[0]
           })));
         } else {
@@ -35,34 +35,34 @@ const FoodOrder = ({ onAddFoodOrder }) => {
   }, []);
 
   const handleAddFoodOrder = async () => {
-    // Check if the required fields are filled
     if (!foodType || quantity <= 0 || !beverage || (beverageQuantity !== '' && beverageQuantity < 0) || !orderDate) {
       setErrorMessage('Please fill in all fields correctly.');
       return;
     }
 
-    // Set default beverageQuantity to 0 if it's empty
     const newFoodOrder = {
-      foodType,  // Pass the selected foodType correctly
+      foodType,
       quantity: Number(quantity),
       beverage,
-      beverageQuantity: beverageQuantity === '' ? 0 : Number(beverageQuantity), // Ensure beverageQuantity is sent as 0 if not provided
+      beverageQuantity: beverageQuantity === '' ? null : Number(beverageQuantity),
       orderDate
     };
 
     try {
       const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
       if (response.status === 201) {
-        // Add the new order to the list of foodOrders
-        setFoodOrders(prevOrders => [...prevOrders, newFoodOrder]);
+        setFoodOrders(prevOrders => [...prevOrders, {
+          ...newFoodOrder,
+          id: response.data.id // Assuming the response returns the new order ID
+        }]);
         if (typeof onAddFoodOrder === 'function') {
           onAddFoodOrder(newFoodOrder);
         }
         setSuccessMessage('Food order added successfully!');
         setErrorMessage('');
 
-        // Reset form fields to their default state
-        setFoodType('Meat'); // Default to Meat
+        // Reset form fields
+        setFoodType('Meat');
         setQuantity('');
         setBeverage('Water');
         setBeverageQuantity('');
@@ -81,9 +81,29 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     }
   };
 
+  const handleDeleteFoodOrder = async (id) => {
+    try {
+      const response = await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/food-orders/${id}`);
+      if (response.status === 200) {
+        setFoodOrders(prevOrders => prevOrders.filter(order => order.id !== id));
+        setSuccessMessage('Food order deleted successfully!');
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Failed to delete food order. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error deleting food order:', error);
+      setErrorMessage('Failed to delete food order.');
+      setSuccessMessage('');
+    }
+  };
+
   return (
     <div className="p-6 bg-gray-900 text-gray-200 min-h-screen">
-      <h2 className="text-4xl font-bold mb-6 text-center text-yellow-300" style={{ fontFamily: "'Dancing Script', cursive" }}>
+      <h2 
+        className="text-4xl font-bold mb-6 text-center text-yellow-300"
+        style={{ fontFamily: "'Dancing Script', cursive" }}
+      >
         Daily Food Orders
       </h2>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full mx-auto">
@@ -101,7 +121,9 @@ const FoodOrder = ({ onAddFoodOrder }) => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-yellow-300">Quantity ({foodType === 'Vegetables' ? 'grams' : 'kg'})</label>
+            <label className="block text-sm font-medium mb-2 text-yellow-300">
+              Quantity ({foodType === 'Vegetables' ? 'grams' : 'kg'})
+            </label>
             <input
               type="number"
               value={quantity}
@@ -126,7 +148,9 @@ const FoodOrder = ({ onAddFoodOrder }) => {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium mb-2 text-yellow-300">Beverage Quantity (liters)</label>
+            <label className="block text-sm font-medium mb-2 text-yellow-300">
+              Beverage Quantity (liters)
+            </label>
             <input
               type="number"
               value={beverageQuantity}
@@ -168,18 +192,23 @@ const FoodOrder = ({ onAddFoodOrder }) => {
           <h3 className="text-2xl font-semibold mb-4 text-yellow-300">Order List</h3>
           <ul>
             {foodOrders.length > 0 ? (
-              foodOrders.map((order, index) => (
-                <li key={index}>
-                  <div>Food Type: {order.foodType}</div>
-                  <div>Quantity: {order.quantity}</div>
-                  <div>Beverage: {order.beverage}</div>
-                  <div>Beverage Quantity: {order.beverageQuantity}</div>
-                  <div>Order Date: {order.orderDate}</div>
-                  {/* Add your delete functionality */}
+              foodOrders.map((order) => (
+                <li key={order.id} className="bg-gray-700 p-4 mb-2 rounded-lg shadow-md text-yellow-300">
+                  <p><strong>Food Type:</strong> {order.foodType}</p>
+                  <p><strong>Quantity:</strong> {order.quantity}</p>
+                  <p><strong>Beverage:</strong> {order.beverage}</p>
+                  <p><strong>Beverage Quantity:</strong> {order.beverageQuantity}</p>
+                  <p><strong>Order Date:</strong> {order.orderDate}</p>
+                  <button
+                    onClick={() => handleDeleteFoodOrder(order.id)}
+                    className="bg-red-500 text-white py-1 px-3 rounded-lg mt-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
+                  >
+                    Delete
+                  </button>
                 </li>
               ))
             ) : (
-              <p>No food orders yet.</p>
+              <li className="text-center text-yellow-300">No food orders found.</li>
             )}
           </ul>
         </div>
