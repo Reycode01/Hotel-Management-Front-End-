@@ -15,7 +15,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     const fetchFoodOrders = async () => {
       try {
         const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/food-orders');
-        if (response.data && response.data.foodOrders) {
+        if (response.data && Array.isArray(response.data.foodOrders)) {
           setFoodOrders(response.data.foodOrders.map(order => ({
             ...order,
             quantity: order.quantity || 0,
@@ -25,6 +25,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
         } else {
           setFoodOrders([]);
         }
+        setErrorMessage('');
       } catch (error) {
         console.error('Error fetching food orders:', error);
         setErrorMessage('Failed to fetch food orders.');
@@ -51,7 +52,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     try {
       const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
       if (response.status === 201) {
-        setFoodOrders([...foodOrders, newFoodOrder]);
+        setFoodOrders(prevOrders => [...prevOrders, newFoodOrder]);
         if (typeof onAddFoodOrder === 'function') {
           onAddFoodOrder(newFoodOrder);
         }
@@ -192,6 +193,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
 };
 
 export default FoodOrder;
+
 
 
 
