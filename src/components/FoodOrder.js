@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const FoodOrder = ({ onAddFoodOrder }) => {
@@ -11,9 +11,28 @@ const FoodOrder = ({ onAddFoodOrder }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
+  useEffect(() => {
+    // Fetch food orders when the component mounts
+    const fetchFoodOrders = async () => {
+      try {
+        const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/food-orders');
+        if (response.data && response.data.foodOrders) {
+          setFoodOrders(response.data.foodOrders);
+        } else {
+          setFoodOrders([]);
+        }
+      } catch (error) {
+        console.error('Error fetching food orders:', error);
+        setErrorMessage('Failed to fetch food orders.');
+      }
+    };
+
+    fetchFoodOrders();
+  }, []); // Empty dependency array to run once on mount
+
   const handleAddFoodOrder = async () => {
     // Basic front-end validation
-    if (!foodType || quantity <= 0 || !beverage || beverageQuantity < 0 || !orderDate) {
+    if (!foodType || quantity <= 0 || !beverage || (beverageQuantity !== '' && beverageQuantity < 0) || !orderDate) {
       setErrorMessage('Please fill in all fields correctly.');
       return;
     }
@@ -22,17 +41,12 @@ const FoodOrder = ({ onAddFoodOrder }) => {
       foodType,
       quantity: Number(quantity),
       beverage,
-      beverageQuantity: Number(beverageQuantity),
-      orderDate // Include the date in the payload
+      beverageQuantity: beverageQuantity === '' ? null : Number(beverageQuantity),
+      orderDate
     };
 
     try {
-      console.log('Sending food order data:', newFoodOrder);
-
       const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
-
-      console.log('Response from server:', response);
-
       if (response.status === 201) {
         setFoodOrders([...foodOrders, newFoodOrder]);
         if (typeof onAddFoodOrder === 'function') {
@@ -50,13 +64,11 @@ const FoodOrder = ({ onAddFoodOrder }) => {
         setBeverageQuantity('');
         setOrderDate('');
       } else {
-        console.error('Unexpected response status:', response.status);
         setErrorMessage('Failed to add food order. Please try again.');
       }
     } catch (error) {
       console.error('Error adding food order:', error);
       if (error.response) {
-        console.error('Server responded with an error:', error.response.data);
         setErrorMessage(error.response.data.error || 'Failed to add food order. Please try again.');
       } else {
         setErrorMessage('Network error: Failed to connect to server.');
