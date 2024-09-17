@@ -12,12 +12,16 @@ const FoodOrder = ({ onAddFoodOrder }) => {
   const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    // Fetch food orders when the component mounts
     const fetchFoodOrders = async () => {
       try {
         const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/food-orders');
         if (response.data && response.data.foodOrders) {
-          setFoodOrders(response.data.foodOrders);
+          setFoodOrders(response.data.foodOrders.map(order => ({
+            ...order,
+            quantity: order.quantity || 0,
+            beverageQuantity: order.beverageQuantity || 0,
+            orderDate: new Date(order.orderDate).toISOString().split('T')[0] // Ensure date format
+          })));
         } else {
           setFoodOrders([]);
         }
@@ -28,10 +32,9 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     };
 
     fetchFoodOrders();
-  }, []); // Empty dependency array to run once on mount
+  }, []);
 
   const handleAddFoodOrder = async () => {
-    // Basic front-end validation
     if (!foodType || quantity <= 0 || !beverage || (beverageQuantity !== '' && beverageQuantity < 0) || !orderDate) {
       setErrorMessage('Please fill in all fields correctly.');
       return;
@@ -48,12 +51,9 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     try {
       const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
       if (response.status === 201) {
-        // Update the order list
         setFoodOrders([...foodOrders, newFoodOrder]);
         if (typeof onAddFoodOrder === 'function') {
           onAddFoodOrder(newFoodOrder);
-        } else {
-          console.error('onAddFoodOrder is not a function');
         }
         setSuccessMessage('Food order added successfully!');
         setErrorMessage('');
@@ -177,7 +177,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
                   <p><strong>Food Type:</strong> {order.foodType}</p>
                   <p><strong>Quantity:</strong> {order.quantity} {order.foodType === 'Vegetables' ? 'grams' : 'kg'}</p>
                   <p><strong>Beverage:</strong> {order.beverage}</p>
-                  <p><strong>Beverage Quantity:</strong> {order.beverageQuantity} liters</p>
+                  <p><strong>Beverage Quantity:</strong> {order.beverageQuantity || 0} liters</p>
                   <p><strong>Order Date:</strong> {new Date(order.orderDate).toLocaleDateString()}</p>
                 </li>
               ))
@@ -192,6 +192,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
 };
 
 export default FoodOrder;
+
 
 
 
