@@ -20,7 +20,8 @@ const FoodOrder = ({ onAddFoodOrder }) => {
             ...order,
             quantity: order.quantity || 0,
             beverageQuantity: order.beverage_quantity || 0,
-            orderDate: order.order_date ? new Date(order.order_date).toISOString().split('T')[0] : '' // Proper date formatting
+            orderDate: order.order_date ? new Date(order.order_date).toISOString().split('T')[0] : '', // Proper date formatting
+            foodType: order.food_type // Ensure foodType is displayed correctly
           })));
         } else {
           setFoodOrders([]);
@@ -46,7 +47,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
       quantity: Number(quantity),
       beverage,
       beverageQuantity: beverageQuantity === '' ? null : Number(beverageQuantity),
-      orderDate // Corrected line
+      orderDate
     };
 
     try {
@@ -54,7 +55,8 @@ const FoodOrder = ({ onAddFoodOrder }) => {
       if (response.status === 201) {
         setFoodOrders(prevOrders => [...prevOrders, {
           ...newFoodOrder,
-          id: response.data.id // Assuming the response returns the new order ID
+          id: response.data.id, // Assuming the response returns the new order ID
+          foodType: newFoodOrder.foodType
         }]);
         if (typeof onAddFoodOrder === 'function') {
           onAddFoodOrder(newFoodOrder);
@@ -161,73 +163,51 @@ const FoodOrder = ({ onAddFoodOrder }) => {
               min="0"
             />
           </div>
-          <div>
-            <label className="block text-sm font-medium mb-2 text-yellow-300">Order Date</label>
-            <input
-              type="date"
-              value={orderDate}
-              onChange={(e) => setOrderDate(e.target.value)}
-              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-700 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-            />
-          </div>
         </div>
-        {errorMessage && (
-          <div className="bg-red-500 border border-red-700 text-white px-4 py-3 rounded mb-4">
-            {errorMessage}
-          </div>
-        )}
-        {successMessage && (
-          <div className="bg-green-500 border border-green-700 text-white px-4 py-3 rounded mb-4">
-            {successMessage}
-          </div>
-        )}
-        <div className="flex justify-center">
-          <button
-            onClick={handleAddFoodOrder}
-            className="bg-yellow-500 text-gray-900 py-2 px-4 rounded-lg hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-          >
-            Add Order
-          </button>
+        <div>
+          <label className="block text-sm font-medium mb-2 text-yellow-300">Order Date</label>
+          <input
+            type="date"
+            value={orderDate}
+            onChange={(e) => setOrderDate(e.target.value)}
+            className="w-full p-3 border border-gray-700 rounded-lg bg-gray-700 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+          />
         </div>
-        <div className="mt-8">
-          <h3 className="text-2xl font-semibold mb-4 text-yellow-300">Order List</h3>
-          <ul>
-            {foodOrders.length > 0 ? (
-              foodOrders.map(order => (
-                <li key={order.id} className="flex justify-between items-center bg-gray-700 p-4 mb-2 rounded-lg">
-                  <div className="text-yellow-300">
-                    <div>Food Type: {order.foodType}</div>
-                    <div>Quantity: {order.quantity} {order.foodType === 'Vegetables' ? 'grams' : 'kg'}</div>
-                    <div>Beverage: {order.beverage} ({order.beverageQuantity} liters)</div>
-                    <div>Date: {order.orderDate}</div> {/* Ensure date is correctly formatted */}
-                  </div>
-                  <button
-                    onClick={() => handleDeleteFoodOrder(order.id)}
-                    className="bg-red-500 text-white py-1 px-3 rounded-lg hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))
-            ) : (
-              <li className="text-center text-yellow-300">No orders found</li>
-            )}
-          </ul>
-        </div>
+
+        <button
+          onClick={handleAddFoodOrder}
+          className="w-full mt-4 p-3 bg-yellow-400 text-gray-900 font-bold rounded-lg hover:bg-yellow-500"
+        >
+          Add Food Order
+        </button>
+        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+        {successMessage && <p className="text-green-500 mt-4">{successMessage}</p>}
+      </div>
+
+      {/* Display food orders */}
+      <div className="mt-8">
+        <h3 className="text-2xl mb-4 text-yellow-300">Existing Orders</h3>
+        <ul className="space-y-4">
+          {foodOrders.map((order) => (
+            <li key={order.id} className="flex justify-between items-center p-4 bg-gray-800 rounded-lg">
+              <div>
+                <p><strong>Food Type:</strong> {order.foodType}</p>
+                <p><strong>Quantity:</strong> {order.quantity} {order.foodType === 'Vegetables' ? 'grams' : 'kg'}</p>
+                <p><strong>Beverage:</strong> {order.beverage} ({order.beverageQuantity} liters)</p>
+                <p><strong>Order Date:</strong> {order.orderDate}</p>
+              </div>
+              <button
+                onClick={() => handleDeleteFoodOrder(order.id)}
+                className="ml-4 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
 };
 
 export default FoodOrder;
-
-
-
-
-
-
-
-
-
-
-
