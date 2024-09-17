@@ -28,7 +28,6 @@ const FoodOrder = ({ onAddFoodOrder }) => {
         setErrorMessage('');
       } catch (error) {
         console.error('Error fetching food orders:', error);
-        setErrorMessage('Failed to fetch food orders.');
       }
     };
 
