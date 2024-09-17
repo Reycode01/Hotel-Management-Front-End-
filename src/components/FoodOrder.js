@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const FoodOrder = ({ onAddFoodOrder }) => {
-  const [foodType, setFoodType] = useState('Meat');
+  const [foodType, setFoodType] = useState('Meat'); // Default value
   const [quantity, setQuantity] = useState('');
   const [beverage, setBeverage] = useState('Water');
   const [beverageQuantity, setBeverageQuantity] = useState('');
@@ -22,12 +22,18 @@ const FoodOrder = ({ onAddFoodOrder }) => {
             beverageQuantity: order.beverage_quantity || 0,
             orderDate: new Date(order.order_date).toISOString().split('T')[0]
           })));
+          // Ensure foodType is set to a default if no orders
+          if (response.data.foodOrders.length === 0) {
+            setFoodType('Meat'); // Default value
+          }
         } else {
           setFoodOrders([]);
+          setFoodType('Meat'); // Default value
         }
         setErrorMessage('');
       } catch (error) {
         console.error('Error fetching food orders:', error);
+        setErrorMessage('Error fetching data from the server.');
       }
     };
 
@@ -192,13 +198,14 @@ const FoodOrder = ({ onAddFoodOrder }) => {
           <h3 className="text-2xl font-semibold mb-4 text-yellow-300">Order List</h3>
           <ul>
             {foodOrders.length > 0 ? (
-              foodOrders.map((order) => (
-                <li key={order.id} className="bg-gray-700 p-4 mb-2 rounded-lg shadow-md text-yellow-300">
-                  <p><strong>Food Type:</strong> {order.foodType}</p>
-                  <p><strong>Quantity:</strong> {order.quantity}</p>
-                  <p><strong>Beverage:</strong> {order.beverage}</p>
-                  <p><strong>Beverage Quantity:</strong> {order.beverageQuantity}</p>
-                  <p><strong>Order Date:</strong> {order.orderDate}</p>
+              foodOrders.map(order => (
+                <li key={order.id} className="flex justify-between items-center bg-gray-700 p-4 mb-2 rounded-lg">
+                  <div className="text-yellow-300">
+                    <div>{order.food_type}</div>
+                    <div>Quantity: {order.quantity} {order.food_type === 'Vegetables' ? 'grams' : 'kg'}</div>
+                    <div>Beverage: {order.beverage} ({order.beverage_quantity} liters)</div>
+                    <div>Date: {new Date(order.order_date).toLocaleDateString()}</div>
+                  </div>
                   <button
                     onClick={() => handleDeleteFoodOrder(order.id)}
                     className="bg-red-500 text-white py-1 px-3 rounded-lg mt-2 hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400"
