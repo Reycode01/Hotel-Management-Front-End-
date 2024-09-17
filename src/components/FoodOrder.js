@@ -20,7 +20,7 @@ const FoodOrder = () => {
         } else {
           setFoodOrders([]);
         }
-        setErrorMessage(''); // Clear any previous error message
+        setErrorMessage('');
       } catch (error) {
         console.error('Error fetching food orders:', error);
         setErrorMessage('Failed to fetch food orders.');
@@ -46,7 +46,6 @@ const FoodOrder = () => {
 
     try {
       const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
-
       if (response.status === 201) {
         setFoodOrders([...foodOrders, { ...newFoodOrder, id: response.data.id }]);
         setSuccessMessage('Food order added successfully!');
