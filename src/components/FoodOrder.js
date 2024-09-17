@@ -29,7 +29,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
         setErrorMessage('');
       } catch (error) {
         console.error('Error fetching food orders:', error);
-        setErrorMessage('Error fetching data from the server.');
+        setErrorMessage();
       }
     };
 
