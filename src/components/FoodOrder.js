@@ -102,9 +102,9 @@ const FoodOrder = ({ onAddFoodOrder }) => {
   };
 
   return (
-    <div className="p-6 bg-gray-900 text-gray-200 min-h-screen">
+    <div className="p-6 bg-gray-900 text-gray-200">
       <h2 
-        className="text-4xl font-bold mb-6 text-center text-yellow-300"
+        className="text-2xl font-bold mb-6 text-center text-yellow-300"
         style={{ fontFamily: "'Dancing Script', cursive" }}
       >
         Daily Food Orders
@@ -186,7 +186,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
 
       {/* Display food orders */}
       <div className="mt-8">
-        <h3 className="text-2xl mb-4 text-yellow-300">Existing Orders</h3>
+        <h3 className="text-1xl mb-1 text-yellow-300">Existing Orders</h3>
         <ul className="space-y-4">
           {foodOrders.map((order) => (
             <li key={order.id} className="flex justify-between items-center p-4 bg-gray-800 rounded-lg">
