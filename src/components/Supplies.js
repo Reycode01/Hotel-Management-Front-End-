@@ -19,7 +19,7 @@ const Supplies = () => {
 
   const fetchSupplies = async () => {
     try {
-      const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/supplies');
+      const response = await axios.get(`https://hotel-management-backend-j1uy.onrender.com/api/supplies`);
       setSupplies(response.data.supplies);
     } catch (error) {
       console.error('Error fetching supplies:', error);
@@ -57,7 +57,7 @@ const Supplies = () => {
         amount: formattedAmount,
         quantity: formattedQuantity,
         unit,
-        supply_date: supplyDate, // Ensure this is in 'YYYY-MM-DD' format
+        supplyDate,
       };
 
       await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
@@ -84,12 +84,12 @@ const Supplies = () => {
 
   const filteredSupplies = supplies.filter((supply) => {
     if (activeTab === 'all') return true; // Show all supplies when 'all' is active
-    return supply.name.toLowerCase().includes(activeTab.toLowerCase());
+    return supply.name.toLowerCase().includes(activeTab);
   });
 
   return (
     <div className="p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-gray-200 min-h-screen">
-      <h2 className="text-4xl font-bold mb-6 text-white text-center" style={{ fontFamily: 'Dancing Script, cursive' }}>
+      <h2 className="text-4xl font-bold mb-6 text-white text-center" style={{ fontFamily: 'Carrington, sans-serif' }}>
         Daily Supplies
       </h2>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-full mx-auto">
@@ -195,7 +195,7 @@ const Supplies = () => {
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
             className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter unit (e.g., kg, liter)"
+            placeholder="Enter unit (e.g., kg, g, liters, crate)"
           />
         </div>
         <div className="mb-4">
@@ -207,39 +207,42 @@ const Supplies = () => {
             className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
+
         <button
           onClick={handleSubmit}
-          className="w-full p-3 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold hover:opacity-90 transition-opacity focus:outline-none"
+          className="w-full bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-500 text-white p-3 rounded-lg transition-transform transform hover:scale-105 focus:outline-none"
         >
           Add Supply
         </button>
-      </div>
 
-      <h3 className="text-2xl font-semibold mb-4 mt-6 text-gray-100">Supply List</h3>
-      {supplies.length === 0 ? (
-        <p className="text-gray-400">No supplies found.</p>
-      ) : (
-        <ul className="divide-y divide-gray-600">
-          {filteredSupplies.map((supply) => (
-            <li key={supply.id} className="p-4 flex justify-between items-center bg-gray-800 rounded-lg mb-2">
-              <div>
-                <p className="text-lg font-bold text-gray-100">{supply.name}</p>
-                <p className="text-sm text-gray-400">Amount: Ksh {supply.amount}</p>
-                <p className="text-sm text-gray-400">
-                  Quantity: {supply.quantity} {supply.unit}
-                </p>
-                <p className="text-sm text-gray-400">Date: {new Date(supply.supply_date).toLocaleDateString()}</p>
-              </div>
-              <button
-                onClick={() => handleDelete(supply.id)}
-                className="p-2 rounded bg-red-600 text-white hover:bg-red-700 transition-colors focus:outline-none"
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
+        <div className="mt-10">
+          <h3 className="text-2xl font-semibold mb-4 text-gray-100">Supply List</h3>
+
+          {filteredSupplies.length === 0 ? (
+            <p className="text-gray-300">No supplies available.</p>
+          ) : (
+            <ul className="space-y-4">
+              {filteredSupplies.map((supply) => (
+                <li
+                  key={supply.id}
+                  className="flex justify-between items-center p-4 bg-gray-700 rounded-lg shadow-md"
+                >
+                  <span className="text-gray-100">
+                    {supply.name} - {supply.quantity} {supply.unit} - Ksh {supply.amount} on{' '}
+                    {new Date(supply.supply_date).toLocaleDateString()}
+                  </span>
+                  <button
+                    onClick={() => handleDelete(supply.id)}
+                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none"
+                  >
+                    Delete
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
