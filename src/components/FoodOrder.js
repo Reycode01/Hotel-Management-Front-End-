@@ -165,7 +165,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
           </div>
         </div>
         <div>
-          <label className="block text-sm font-medium mb-2 text-yellow-300">Order Date</label>
+          <label className="block text-sm font-medium mb-1 text-yellow-300">Order Date</label>
           <input
             type="date"
             value={orderDate}
@@ -176,7 +176,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
 
         <button
           onClick={handleAddFoodOrder}
-          className="w-full mt-4 p-3 bg-yellow-400 text-gray-900 font-bold rounded-lg hover:bg-yellow-500"
+          className="w-full mt-4 p-1 bg-yellow-400 text-gray-900 font-bold rounded-lg hover:bg-yellow-500"
         >
           Add Food Order
         </button>

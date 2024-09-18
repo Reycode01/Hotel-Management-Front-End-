@@ -5,243 +5,196 @@ const Supplies = () => {
   const [supplyName, setSupplyName] = useState('');
   const [amount, setAmount] = useState('');
   const [quantity, setQuantity] = useState('');
-  const [unit, setUnit] = useState('');
+  const [unit, setUnit] = useState('Units');
   const [supplyDate, setSupplyDate] = useState('');
-  const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [activeTab, setActiveTab] = useState('all'); // Default to showing all supplies
   const [supplies, setSupplies] = useState([]);
+  const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    // Fetch supplies when the component mounts
+    const fetchSupplies = async () => {
+      try {
+        const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/supplies');
+        if (response.data && Array.isArray(response.data.supplies)) {
+          setSupplies(response.data.supplies.map(supply => ({
+            ...supply,
+            amount: supply.amount || 0,
+            quantity: supply.quantity || 0,
+            supplyDate: supply.supply_date ? new Date(supply.supply_date).toISOString().split('T')[0] : ''
+          })));
+        } else {
+          setSupplies([]);
+        }
+        setErrorMessage('');
+      } catch (error) {
+        console.error('Error fetching supplies:', error);
+        setErrorMessage('Failed to fetch supplies.');
+      }
+    };
+
     fetchSupplies();
   }, []);
 
-  const fetchSupplies = async () => {
-    try {
-      const response = await axios.get(`https://hotel-management-backend-j1uy.onrender.com/api/supplies`);
-      setSupplies(response.data.supplies);
-    } catch (error) {
-      console.error('Error fetching supplies:', error);
-      setErrorMessage('An error occurred while fetching supplies.');
+  const handleAddSupply = async () => {
+    if (!supplyName || amount <= 0 || quantity <= 0 || !unit || !supplyDate) {
+      setErrorMessage('Please fill in all fields correctly.');
+      return;
     }
-  };
 
-  const handleTabClick = (tab) => {
-    setActiveTab(tab);
-    resetForm();
-  };
+    const newSupply = {
+      name: supplyName,
+      amount: Number(amount),
+      quantity: Number(quantity),
+      unit,
+      supply_date: supplyDate
+    };
 
-  const resetForm = () => {
-    setSupplyName('');
-    setAmount('');
-    setQuantity('');
-    setUnit('');
-    setSupplyDate('');
-    setSuccessMessage('');
-    setErrorMessage('');
-  };
-
-  const handleSubmit = async () => {
     try {
-      const formattedAmount = parseFloat(amount);
-      const formattedQuantity = parseFloat(quantity);
+      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
+      if (response.status === 201) {
+        setSupplies(prevSupplies => [...prevSupplies, {
+          ...newSupply,
+          id: response.data.id // Assuming the response returns the new supply ID
+        }]);
+        setSuccessMessage('Supply added successfully!');
+        setErrorMessage('');
 
-      if (!supplyName.trim() || isNaN(formattedAmount) || isNaN(formattedQuantity) || !unit || !supplyDate) {
-        setErrorMessage('Please fill in all fields correctly.');
-        return;
+        // Reset form fields
+        setSupplyName('');
+        setAmount('');
+        setQuantity('');
+        setUnit('Units');
+        setSupplyDate('');
+      } else {
+        setErrorMessage('Failed to add supply. Please try again.');
       }
-
-      const newSupply = {
-        name: supplyName,
-        amount: formattedAmount,
-        quantity: formattedQuantity,
-        unit,
-        supplyDate,
-      };
-
-      await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
-
-      setSuccessMessage('Supply added successfully!');
-      resetForm();
-      fetchSupplies(); // Refresh supplies after adding
     } catch (error) {
-      console.error('Failed to add supply:', error);
-      setErrorMessage('An error occurred while adding the supply.');
+      console.error('Error adding supply:', error);
+      if (error.response) {
+        setErrorMessage(error.response.data.error || 'Failed to add supply. Please try again.');
+      } else {
+        setErrorMessage('Network error: Failed to connect to server.');
+      }
+      setSuccessMessage('');
     }
   };
 
-  const handleDelete = async (supplyId) => {
+  const handleDeleteSupply = async (id) => {
     try {
-      await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/supplies/${supplyId}`);
-      setSuccessMessage('Supply deleted successfully!');
-      fetchSupplies(); // Refresh supplies after deleting
+      const response = await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/supplies/${id}`);
+      if (response.status === 200) {
+        setSupplies(prevSupplies => prevSupplies.filter(supply => supply.id !== id));
+        setSuccessMessage('Supply deleted successfully!');
+        setErrorMessage('');
+      } else {
+        setErrorMessage('Failed to delete supply. Please try again.');
+      }
     } catch (error) {
-      console.error('Failed to delete supply:', error);
-      setErrorMessage('An error occurred while deleting the supply.');
+      console.error('Error deleting supply:', error);
+      setErrorMessage('Failed to delete supply.');
+      setSuccessMessage('');
     }
   };
-
-  const filteredSupplies = supplies.filter((supply) => {
-    if (activeTab === 'all') return true; // Show all supplies when 'all' is active
-    return supply.name.toLowerCase().includes(activeTab);
-  });
 
   return (
-    <div className="p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-gray-200 min-h-screen">
-      <h2 className="text-4xl font-bold mb-6 text-white text-center" style={{ fontFamily: 'Carrington, sans-serif' }}>
+    <div className="p-6 bg-gray-900 text-gray-200">
+      <h2 
+        className="text-2xl font-bold mb-6 text-center text-green-500"
+        style={{ fontFamily: "'Dancing Script', cursive" }}
+      >
         Daily Supplies
       </h2>
-      <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-full mx-auto">
-        <div className="flex flex-wrap gap-2 mb-4">
-          <button
-            onClick={() => handleTabClick('all')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'all' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
-            }`}
-          >
-            All Supplies
-          </button>
-          <button
-            onClick={() => handleTabClick('meat')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'meat' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
-            }`}
-          >
-            Meat
-          </button>
-          <button
-            onClick={() => handleTabClick('vegetables')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'vegetables' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
-            }`}
-          >
-            Vegetables
-          </button>
-          <button
-            onClick={() => handleTabClick('cereals')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'cereals' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
-            }`}
-          >
-            Cereals
-          </button>
-          <button
-            onClick={() => handleTabClick('detergents')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'detergents' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
-            }`}
-          >
-            Detergents
-          </button>
-          <button
-            onClick={() => handleTabClick('drinks')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
-              activeTab === 'drinks' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
-            }`}
-          >
-            Drinks
-          </button>
-        </div>
-
-        <h3 className="text-2xl font-semibold mb-4 text-gray-100">Add New Supply</h3>
-
-        {successMessage && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
-            {successMessage}
+      <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full mx-auto">
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-orange-500">Supply Name</label>
+            <input
+              type="text"
+              value={supplyName}
+              onChange={(e) => setSupplyName(e.target.value)}
+              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-700 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Enter supply name"
+            />
           </div>
-        )}
-
-        {errorMessage && (
-          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-            {errorMessage}
+          <div>
+            <label className="block text-sm font-medium mb-2 text-orange-500">Amount (Ksh)</label>
+            <input
+              type="number"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-700 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Enter amount"
+              min="0"
+            />
           </div>
-        )}
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Supply Name</label>
-          <input
-            type="text"
-            value={supplyName}
-            onChange={(e) => setSupplyName(e.target.value)}
-            className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter supply name"
-          />
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Amount (Ksh)</label>
-          <input
-            type="number"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter total cost"
-          />
+        <div className="grid grid-cols-1 gap-4 mb-4">
+          <div>
+            <label className="block text-sm font-medium mb-2 text-orange-500">Quantity</label>
+            <input
+              type="number"
+              value={quantity}
+              onChange={(e) => setQuantity(e.target.value)}
+              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-700 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+              placeholder="Enter quantity"
+              min="0"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-2 text-orange-500">Unit</label>
+            <select
+              value={unit}
+              onChange={(e) => setUnit(e.target.value)}
+              className="w-full p-3 border border-gray-700 rounded-lg bg-gray-700 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            >
+              <option value="Units">Units</option>
+              <option value="kg">kg</option>
+              <option value="liters">liters</option>
+              {/* Add more units as needed */}
+            </select>
+          </div>
         </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Quantity</label>
-          <input
-            type="number"
-            value={quantity}
-            onChange={(e) => setQuantity(e.target.value)}
-            className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder={`Enter quantity in ${unit}`}
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Unit</label>
-          <input
-            type="text"
-            value={unit}
-            onChange={(e) => setUnit(e.target.value)}
-            className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter unit (e.g., kg, g, liters, crate)"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Supply Date</label>
+        <div>
+          <label className="block text-sm font-medium mb-1 text-orange-500">Supply Date</label>
           <input
             type="date"
             value={supplyDate}
             onChange={(e) => setSupplyDate(e.target.value)}
-            className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full p-3 border border-gray-700 rounded-lg bg-gray-700 text-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-400"
           />
         </div>
 
         <button
-          onClick={handleSubmit}
-          className="w-full bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-500 text-white p-3 rounded-lg transition-transform transform hover:scale-105 focus:outline-none"
+          onClick={handleAddSupply}
+          className="w-full mt-4 p-1 bg-orange-400 text-gray-900 font-bold rounded-lg hover:bg-yellow-500"
         >
           Add Supply
         </button>
+        {errorMessage && <p className="text-red-500 mt-4">{errorMessage}</p>}
+        {successMessage && <p className="text-green-500 mt-4">{successMessage}</p>}
+      </div>
 
-        <div className="mt-10">
-          <h3 className="text-2xl font-semibold mb-4 text-gray-100">Supply List</h3>
-
-          {filteredSupplies.length === 0 ? (
-            <p className="text-gray-300">No supplies available.</p>
-          ) : (
-            <ul className="space-y-4">
-              {filteredSupplies.map((supply) => (
-                <li
-                  key={supply.id}
-                  className="flex justify-between items-center p-4 bg-gray-700 rounded-lg shadow-md"
-                >
-                  <span className="text-gray-100">
-                    {supply.name} - {supply.quantity} {supply.unit} - Ksh {supply.amount} on{' '}
-                    {new Date(supply.supply_date).toLocaleDateString()}
-                  </span>
-                  <button
-                    onClick={() => handleDelete(supply.id)}
-                    className="bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 focus:outline-none"
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
+      {/* Display supplies */}
+      <div className="mt-8">
+        <h3 className="text-1xl mb-1 text-orange-500">Existing Supplies</h3>
+        <ul className="space-y-4">
+          {supplies.map((supply) => (
+            <li key={supply.id} className="flex justify-between items-center p-4 bg-gray-800 rounded-lg">
+              <div>
+                <p><strong>Supply Name:</strong> {supply.name}</p>
+                <p><strong>Amount:</strong> Ksh {supply.amount.toFixed(2)}</p>
+                <p><strong>Quantity:</strong> {supply.quantity} {supply.unit}</p>
+                <p><strong>Date:</strong> {new Date(supply.supply_date).toLocaleDateString()}</p>
+              </div>
+              <button
+                onClick={() => handleDeleteSupply(supply.id)}
+                className="ml-4 p-2 bg-red-500 text-white rounded-lg hover:bg-red-600"
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
