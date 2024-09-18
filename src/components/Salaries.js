@@ -178,7 +178,7 @@ const Salaries = () => {
                 className="flex justify-between items-center bg-gradient-to-r from-teal-500 to-purple-500 text-yellow-400 p-6 rounded-lg shadow-md transform hover:scale-100 transition-all"
               >
                 <div>
-                  <p className="text-xl font-bold">{salary.employee_name}, Hours Worked: {salary.hours_worked.toLocaleString()},Total Pay: Ksh {salary.total_pay.toLocaleString()}, Total Damages: Ksh {salary.total_damages.toLocaleString()},  Date: {new Date(salary.date).toLocaleDateString()}</p>
+                  <p className="text-1xl font-bold">{salary.employee_name}, hours worked: {salary.hours_worked.toLocaleString()}, total pay: Ksh {salary.total_pay.toLocaleString()}, total damages: Ksh {salary.total_damages.toLocaleString()},  date: {new Date(salary.date).toLocaleDateString()}</p>
                   <p className="font-bold">Final Total Pay: Ksh {salary.final_total_pay.toLocaleString()}</p>
                 </div>
                 <button
