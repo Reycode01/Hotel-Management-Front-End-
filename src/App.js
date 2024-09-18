@@ -83,11 +83,26 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8">
-      <header className="bg-gradient-to-r from-green-400 to-blue-500 text-white p-6 mb-8 rounded-lg shadow-lg">
-        <h1 className="text-4xl font-extrabold mb-2" style={{ fontFamily: 'Brush Script MT, cursive', textShadow: '2px 2px 4px #000000' }}>
+      <header className=" from-green-400 to-blue-500 text-white p-6">
+        <h1
+          className="text-3xl font-extrabold text-yellow-900"
+          style={{
+            fontFamily: "'Dancing Script', cursive",
+            textShadow: '6px 7px 12px rgba(0, 0, 0, 0.1)',
+          }}
+        >
           Hotel Budget Management
         </h1>
-        <p className="text-lg italic font-light">Manage your hotel finances with ease and style.</p>
+        <p
+  className="text-lg italic font-light text-yellow-300 to-yellow-600"
+  style={{
+    fontFamily: "'Dancing Script', cursive",
+    textShadow: '1px 1px 2px rgba(0, 0, 0, 0.3)',
+    lineHeight: '1.1',
+  }}
+>
+  Manage your hotel finances with ease and style.
+</p>
       </header>
       <main className="space-y-8">
         <RoomBooking onBooking={handleRoomBooking} />
