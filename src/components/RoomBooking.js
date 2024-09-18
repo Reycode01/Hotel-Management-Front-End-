@@ -11,7 +11,7 @@ const roomsList = [
   { name: 'Majestic Manor', price: 4500 },
   { name: 'Opulent Oasis', price: 5000 },
   { name: 'Luxury Loft', price: 5500 },
-  { name: 'Presidential Penthouse', price: 6000 },
+  { name: 'Kings', price: 6000 },
 ];
 
 const RoomBooking = () => {
@@ -91,27 +91,30 @@ const RoomBooking = () => {
   };
 
   return (
-    <div className="relative p-4 bg-gray-900 rounded-xl shadow-lg">
-      <h2 className="text-4xl font-extrabold mb-4 text-center" style={{ color: '#24f21d' }}>
+    <div className="relative p-1 bg-gray-900 rounded-xl shadow-lg">
+      <h2
+        className="text-2xl font-extrabold mb-1 text-center"
+        style={{ color: '#24f21d', fontFamily: "'Dancing Script', cursive" }}
+      >
         Room Booking
       </h2>
 
       {/* Room List */}
       {!showBookingForm && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-5 gap-4 mb-3">
           {rooms.map((room) => (
             <button
               key={room.name}
               onClick={() => handleRoomClick(room)}
               disabled={room.booked}
-              className={`flex items-center justify-between p-3 rounded-lg shadow-md transition-transform transform hover:scale-105 hover:shadow-lg text-sm sm:text-base ${
+              className={`flex items-center justify-between p-2 sm:p-3 md:p-4 rounded-lg shadow-md transition-transform transform hover:scale-105 text-sm sm:text-base ${
                 room.booked
                   ? 'bg-gray-700 cursor-not-allowed text-gray-400'
                   : 'bg-gray-800 font-bold'
               }`}
             >
               <span style={{ color: '#24f21d' }}>{room.name}</span>
-              <span className="text-white">Ksh.{room.price}</span>
+              <span style={{ color: 'gold' }}>Ksh.{room.price}</span> {/* Gold price */}
             </button>
           ))}
         </div>
@@ -119,8 +122,8 @@ const RoomBooking = () => {
 
       {/* Booking Form Modal */}
       {showBookingForm && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl max-w-md mx-auto border border-gray-500">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+          <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl w-full max-w-md mx-auto border border-gray-500">
             <h3 className="text-2xl font-semibold mb-2 text-white">Booking Form</h3>
             <label className="block mb-2">
               <span className="text-gray-300 font-medium">Customer Name:</span>
