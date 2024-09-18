@@ -57,7 +57,7 @@ const Supplies = () => {
         amount: formattedAmount,
         quantity: formattedQuantity,
         unit,
-        supply_date: supplyDate,
+        supply_date: supplyDate, // Ensure this is in 'YYYY-MM-DD' format
       };
 
       await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
@@ -195,7 +195,7 @@ const Supplies = () => {
             value={unit}
             onChange={(e) => setUnit(e.target.value)}
             className="w-full p-3 border border-gray-600 rounded-lg bg-gray-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter unit (e.g., kg, g, liters, crate)"
+            placeholder="Enter unit (e.g., kg, liter)"
           />
         </div>
         <div className="mb-4">
@@ -209,39 +209,37 @@ const Supplies = () => {
         </div>
         <button
           onClick={handleSubmit}
-          className="w-full py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition duration-300"
+          className="w-full p-3 rounded-lg bg-gradient-to-r from-green-400 to-blue-500 text-white font-bold hover:opacity-90 transition-opacity focus:outline-none"
         >
           Add Supply
         </button>
-
-        <h3 className="text-2xl font-semibold mt-8 mb-4 text-gray-100">Supply List</h3>
-
-        <div className="bg-gray-800 p-4 rounded-lg shadow-lg">
-          {filteredSupplies.length > 0 ? (
-            filteredSupplies.map((supply) => (
-              <div
-                key={supply.id}
-                className="flex items-center justify-between p-4 mb-4 bg-gray-700 rounded-lg"
-              >
-                <div className="text-gray-200">
-                  <p className="font-semibold">Name: {supply.name}</p>
-                  <p>Amount: Ksh {supply.amount}</p>
-                  <p>Quantity: {supply.quantity} {supply.unit}</p>
-                  <p>Date: {new Date(supply.supply_date).toLocaleDateString()}</p>
-                </div>
-                <button
-                  onClick={() => handleDelete(supply.id)}
-                  className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300"
-                >
-                  Delete
-                </button>
-              </div>
-            ))
-          ) : (
-            <p className="text-gray-400">No supplies available for this category.</p>
-          )}
-        </div>
       </div>
+
+      <h3 className="text-2xl font-semibold mb-4 mt-6 text-gray-100">Supply List</h3>
+      {supplies.length === 0 ? (
+        <p className="text-gray-400">No supplies found.</p>
+      ) : (
+        <ul className="divide-y divide-gray-600">
+          {filteredSupplies.map((supply) => (
+            <li key={supply.id} className="p-4 flex justify-between items-center bg-gray-800 rounded-lg mb-2">
+              <div>
+                <p className="text-lg font-bold text-gray-100">{supply.name}</p>
+                <p className="text-sm text-gray-400">Amount: Ksh {supply.amount}</p>
+                <p className="text-sm text-gray-400">
+                  Quantity: {supply.quantity} {supply.unit}
+                </p>
+                <p className="text-sm text-gray-400">Date: {new Date(supply.supply_date).toLocaleDateString()}</p>
+              </div>
+              <button
+                onClick={() => handleDelete(supply.id)}
+                className="p-2 rounded bg-red-600 text-white hover:bg-red-700 transition-colors focus:outline-none"
+              >
+                Delete
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 };
