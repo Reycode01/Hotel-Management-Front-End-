@@ -89,14 +89,17 @@ const Supplies = () => {
 
   return (
     <div className="p-6 bg-gradient-to-br from-gray-900 to-gray-800 text-gray-200 min-h-screen">
-      <h2 className="text-4xl font-bold mb-6 text-white text-center" style={{ fontFamily: 'Carrington, sans-serif' }}>
-        Daily Supplies
+      <h2
+        className="text-2xl font-bold mb-6 text-orange-600 text-center"
+        style={{ fontFamily: "'Dancing Script', cursive" }}  // Apply Dancing Script
+      >
+          Daily Supplies
       </h2>
       <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-full mx-auto">
         <div className="flex flex-wrap gap-2 mb-4">
           <button
             onClick={() => handleTabClick('all')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+            className={`flex-1 p-3 rounded-lg text-yellow-300 font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
               activeTab === 'all' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
             }`}
           >
@@ -104,7 +107,7 @@ const Supplies = () => {
           </button>
           <button
             onClick={() => handleTabClick('meat')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+            className={`flex-1 p-3 rounded-lg text-yellow-400 font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
               activeTab === 'meat' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
             }`}
           >
@@ -112,7 +115,7 @@ const Supplies = () => {
           </button>
           <button
             onClick={() => handleTabClick('vegetables')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+            className={`flex-1 p-3 rounded-lg text-yellow-400 font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
               activeTab === 'vegetables' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
             }`}
           >
@@ -120,7 +123,7 @@ const Supplies = () => {
           </button>
           <button
             onClick={() => handleTabClick('cereals')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+            className={`flex-1 p-3 rounded-lg text-yellow-400 font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
               activeTab === 'cereals' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
             }`}
           >
@@ -128,7 +131,7 @@ const Supplies = () => {
           </button>
           <button
             onClick={() => handleTabClick('detergents')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+            className={`flex-1 p-3 rounded-lg text-yellow-400 font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
               activeTab === 'detergents' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
             }`}
           >
@@ -136,7 +139,7 @@ const Supplies = () => {
           </button>
           <button
             onClick={() => handleTabClick('drinks')}
-            className={`flex-1 p-3 rounded-lg text-white font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
+            className={`flex-1 p-3 rounded-lg text-yellow-400 font-semibold transition-transform transform hover:scale-105 focus:outline-none ${
               activeTab === 'drinks' ? 'bg-gradient-to-r from-teal-400 to-cyan-500' : 'bg-gray-600'
             }`}
           >
@@ -144,7 +147,7 @@ const Supplies = () => {
           </button>
         </div>
 
-        <h3 className="text-2xl font-semibold mb-4 text-gray-100">Add New Supply</h3>
+        <h3 className="text-2xl font-semibold mb-4 text-blue-500">Add New Supply</h3>
 
         {successMessage && (
           <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
@@ -159,7 +162,7 @@ const Supplies = () => {
         )}
 
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Supply Name</label>
+          <label className="block text-sm font-medium mb-2 text-green-400">Supply Name</label>
           <input
             type="text"
             value={supplyName}
@@ -169,7 +172,7 @@ const Supplies = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Amount (Ksh)</label>
+          <label className="block text-sm font-medium mb-2 text-green-400">Amount (Ksh)</label>
           <input
             type="number"
             value={amount}
@@ -179,7 +182,7 @@ const Supplies = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Quantity</label>
+          <label className="block text-sm font-medium mb-2 text-green-400">Quantity</label>
           <input
             type="number"
             value={quantity}
@@ -189,7 +192,7 @@ const Supplies = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Unit</label>
+          <label className="block text-sm font-medium mb-2 text-green-400">Unit</label>
           <input
             type="text"
             value={unit}
@@ -199,7 +202,7 @@ const Supplies = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-sm font-medium mb-2 text-gray-300">Supply Date</label>
+          <label className="block text-sm font-medium mb-2 text-green-400">Supply Date</label>
           <input
             type="date"
             value={supplyDate}
@@ -210,16 +213,16 @@ const Supplies = () => {
 
         <button
           onClick={handleSubmit}
-          className="w-full bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-500 text-white p-3 rounded-lg transition-transform transform hover:scale-105 focus:outline-none"
+          className="w-full bg-gradient-to-r from-teal-400 to-cyan-500 hover:from-cyan-400 hover:to-teal-500 text-blue-700 p-3 rounded-lg transition-transform transform hover:scale-105 focus:outline-none"
         >
           Add Supply
         </button>
 
         <div className="mt-10">
-          <h3 className="text-2xl font-semibold mb-4 text-gray-100">Supply List</h3>
+          <h3 className="text-2xl font-semibold mb-4 text-blue-500">Supply List</h3>
 
           {filteredSupplies.length === 0 ? (
-            <p className="text-gray-300">No supplies available.</p>
+            <p className="text-yellow-300">No supplies available.</p>
           ) : (
             <ul className="space-y-4">
               {filteredSupplies.map((supply) => (
@@ -227,7 +230,7 @@ const Supplies = () => {
                   key={supply.id}
                   className="flex justify-between items-center p-4 bg-gray-700 rounded-lg shadow-md"
                 >
-                  <span className="text-gray-100">
+                  <span className="text-green-300">
                     {supply.name} - {supply.quantity} {supply.unit} - Ksh {supply.amount} on{' '}
                     {new Date(supply.supply_date).toLocaleDateString()}
                   </span>

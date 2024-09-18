@@ -88,7 +88,7 @@ const Salaries = () => {
   return (
     <div className="flex flex-col items-center bg-gray-900 py-4 px-4">
       <div className="p-5 bg-gray-800 bg-opacity-90 rounded-xl shadow-lg w-full border border-gray-700 backdrop-blur-md">
-        <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500 mb-8">
+        <h2 className="text-2xl font-extrabold text-center text-transparent bg-clip-text bg-gradient-to-r from-teal-400 to-purple-500 mb-8" style={{ fontFamily: "'Dancing Script', cursive" }}>
           Daily Salaries
         </h2>
 
