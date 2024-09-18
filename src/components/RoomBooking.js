@@ -60,11 +60,22 @@ const RoomBooking = () => {
     setShowBookingForm(true); // Show booking form
   };
 
+  const isDateValid = (selectedDate) => {
+    const today = new Date();
+    const bookingDate = new Date(selectedDate);
+    return bookingDate >= today.setHours(0, 0, 0, 0); // Set to start of today to allow today as a valid date
+  };
+
   const handleBooking = async () => {
     const bookingAmountNum = Number(bookingAmount.trim());
 
     if (customerName.trim() === '' || isNaN(bookingAmountNum) || selectedRoom.trim() === '' || !bookingDate) {
       setErrorMessage('Please fill in all fields.');
+      return;
+    }
+
+    if (!isDateValid(bookingDate)) {
+      setErrorMessage('Please select today or a future date. We look forward to serving you!.');
       return;
     }
 
@@ -98,7 +109,6 @@ const RoomBooking = () => {
       >
         Room Booking
       </h2>
-
       {/* Room List */}
       {!showBookingForm && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-5 gap-4 mb-3">
