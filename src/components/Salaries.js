@@ -50,11 +50,11 @@ const Salaries = () => {
     };
 
     try {
-      await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/salaries', newSalary);
+      await axios.post('https://hotel-management-backend-2-b21q.onrender.com/api/salaries', newSalary);
       setSuccessMessage('Salary successfully added.');
       setErrorMessage('');
 
-      const { data } = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/salaries');
+      const { data } = await axios.get('https://hotel-management-backend-2-b21q.onrender.com/api/salaries');
       setSalariesList(data.salaries);
 
       setEmployeeName('');
@@ -75,7 +75,7 @@ const Salaries = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/salaries/${id}`);
+      await axios.delete(`https://hotel-management-backend-2-b21q.onrender.com/api/salaries/${id}`);
       setSuccessMessage('Salary record deleted successfully!');
 
       setSalariesList(salariesList.filter(salary => salary.id !== id));

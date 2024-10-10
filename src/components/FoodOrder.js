@@ -14,7 +14,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
   useEffect(() => {
     const fetchFoodOrders = async () => {
       try {
-        const response = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/food-orders');
+        const response = await axios.get('https://hotel-management-backend-2-b21q.onrender.com/api/food-orders');
         if (response.data && Array.isArray(response.data.foodOrders)) {
           setFoodOrders(response.data.foodOrders.map(order => ({
             ...order,
@@ -51,7 +51,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
     };
 
     try {
-      const response = await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/food-orders', newFoodOrder);
+      const response = await axios.post('https://hotel-management-backend-2-b21q.onrender.com/api/food-orders', newFoodOrder);
       if (response.status === 201) {
         setFoodOrders(prevOrders => [...prevOrders, {
           ...newFoodOrder,
@@ -86,7 +86,7 @@ const FoodOrder = ({ onAddFoodOrder }) => {
 
   const handleDeleteFoodOrder = async (id) => {
     try {
-      const response = await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/food-orders/${id}`);
+      const response = await axios.delete(`https://hotel-management-backend-2-b21q.onrender.com/api/food-orders/${id}`);
       if (response.status === 200) {
         setFoodOrders(prevOrders => prevOrders.filter(order => order.id !== id));
         setSuccessMessage('Food order deleted successfully!');

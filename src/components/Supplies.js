@@ -19,7 +19,7 @@ const Supplies = () => {
 
   const fetchSupplies = async () => {
     try {
-      const response = await axios.get(`https://hotel-management-backend-j1uy.onrender.com/api/supplies`);
+      const response = await axios.get(`https://hotel-management-backend-2-b21q.onrender.com/api/supplies`);
       setSupplies(response.data.supplies);
     } catch (error) {
       console.error('Error fetching supplies:', error);
