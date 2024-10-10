@@ -14,7 +14,7 @@ const Salaries = () => {
   useEffect(() => {
     const fetchSalaries = async () => {
       try {
-        const { data } = await axios.get('https://hotel-management-backend-j1uy.onrender.com/api/salaries');
+        const { data } = await axios.get('https://hotel-management-backend-2-b21q.onrender.com/api/salaries');
         setSalariesList(data.salaries);
       } catch (error) {
         console.error('Error fetching salaries:', error);

@@ -60,7 +60,7 @@ const Supplies = () => {
         supplyDate,
       };
 
-      await axios.post('https://hotel-management-backend-j1uy.onrender.com/api/supplies', newSupply);
+      await axios.post('https://hotel-management-backend-2-b21q.onrender.com/api/supplies', newSupply);
 
       setSuccessMessage('Supply added successfully!');
       resetForm();
@@ -73,7 +73,7 @@ const Supplies = () => {
 
   const handleDelete = async (supplyId) => {
     try {
-      await axios.delete(`https://hotel-management-backend-j1uy.onrender.com/api/supplies/${supplyId}`);
+      await axios.delete(`https://hotel-management-backend-2-b21q.onrender.com/api/supplies/${supplyId}`);
       setSuccessMessage('Supply deleted successfully!');
       fetchSupplies(); // Refresh supplies after deleting
     } catch (error) {
