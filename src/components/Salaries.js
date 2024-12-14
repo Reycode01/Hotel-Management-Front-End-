@@ -14,7 +14,7 @@ const Salaries = () => {
   useEffect(() => {
     const fetchSalaries = async () => {
       try {
-        const { data } = await axios.get('https://hotel-management-backend-3.onrender.com/api/salaries');
+        const { data } = await axios.get('https://hotel-management-backend-4.onrender.com/api/salaries');
         setSalariesList(data.salaries);
       } catch (error) {
         console.error('Error fetching salaries:', error);
@@ -50,11 +50,11 @@ const Salaries = () => {
     };
 
     try {
-      await axios.post('https://hotel-management-backend-3.onrender.com/api/salaries', newSalary);
+      await axios.post('https://hotel-management-backend-4.onrender.com/api/salaries', newSalary);
       setSuccessMessage('Salary successfully added.');
       setErrorMessage('');
 
-      const { data } = await axios.get('https://hotel-management-backend-3.onrender.com/api/salaries');
+      const { data } = await axios.get('https://hotel-management-backend-4.onrender.com/api/salaries');
       setSalariesList(data.salaries);
 
       setEmployeeName('');
@@ -75,7 +75,7 @@ const Salaries = () => {
 
   const handleDelete = async (id) => {
     try {
-      await axios.delete(`https://hotel-management-backend-3.onrender.com/api/salaries/${id}`);
+      await axios.delete(`https://hotel-management-backend-4.onrender.com/api/salaries/${id}`);
       setSuccessMessage('Salary record deleted successfully!');
 
       setSalariesList(salariesList.filter(salary => salary.id !== id));
