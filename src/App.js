@@ -167,12 +167,26 @@ const App = () => {
           Manage your hotel finances with ease and style.
         </p>
       </header>
-      <main className="space-y-4">
+
+      <main className="space-y-6">
+        <section className="bg-white bg-opacity-20 p-4 rounded-lg shadow-md text-white">
+          <h2 className="text-xl font-bold mb-2">Summary</h2>
+          <p>Total Income: KES {data.totalIncome.toFixed(2)}</p>
+          <p>Total Expenditure: KES {data.totalExpenditure.toFixed(2)}</p>
+          <p>
+            Profit or Loss:{' '}
+            <span className={data.profitOrLoss >= 0 ? 'text-green-200' : 'text-red-200'}>
+              KES {data.profitOrLoss.toFixed(2)}
+            </span>
+          </p>
+        </section>
+
         <RoomBooking onBooking={handleRoomBooking} />
         <FoodOrder onOrder={handleFoodOrder} />
         <Supplies onSupply={handleSupply} />
         <Salaries onSalary={handleSalary} />
       </main>
+
       <footer className="text-center text-yellow-400 py-4 mt-2">
         <p>© 2025 Humphrey's Dev Studio. All Rights Reserved.</p>
       </footer>
