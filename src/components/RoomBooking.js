@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// (You already set axios.defaults.baseURL in App.js)
+// Configure base URL for all axios requests
+axios.defaults.baseURL = 'https://hotel-management-backend-8.onrender.com';
 
 const roomsList = [
   { name: 'Sapphire Suite', price: 1000 },
@@ -16,9 +17,9 @@ const roomsList = [
   { name: 'Kings', price: 6000 },
 ];
 
-export default function RoomBooking({ onBooking }) {
+const RoomBooking = () => {
   const [rooms, setRooms] = useState(
-    roomsList.map(r => ({ ...r, booked: false }))
+    roomsList.map(room => ({ ...room, booked: false }))
   );
   const [customerName, setCustomerName] = useState('');
   const [bookingAmount, setBookingAmount] = useState('');
@@ -30,33 +31,33 @@ export default function RoomBooking({ onBooking }) {
   const fetchRoomBookings = useCallback(async () => {
     if (!bookingDate) return;
     try {
-      const { data } = await axios.get('/api/room-bookings', {
-        params: { bookingDate }
+      const response = await axios.get('/api/room-bookings', {
+        params: { bookingDate },
       });
-      const bookedArray = Array.isArray(data.bookings) ? data.bookings : [];
-      setRooms(
-        roomsList.map(room => ({
-          ...room,
-          booked: bookedArray.some(
-            b => b.room_name === room.name && b.booking_date === bookingDate
-          )
-        }))
-      );
+
+      const bookedRooms = Array.isArray(response.data.bookings)
+        ? response.data.bookings
+        : [];
+
+      const updated = roomsList.map(room => ({
+        ...room,
+        booked: bookedRooms.some(
+          ({ room_name, booking_date }) =>
+            room_name === room.name && booking_date === bookingDate
+        ),
+      }));
+
+      setRooms(updated);
       setErrorMessage('');
     } catch (err) {
-      console.error('Availability fetch failed:', err);
-      setErrorMessage('Could not fetch availability.');
+      console.error('Fetch error:', err);
+      setErrorMessage('Unable to fetch availability.');
     }
   }, [bookingDate]);
 
   useEffect(() => {
     fetchRoomBookings();
   }, [bookingDate, fetchRoomBookings]);
-
-  const isDateValid = d => {
-    const today = new Date();
-    return new Date(d) >= new Date(today.setHours(0,0,0,0));
-  };
 
   const handleRoomClick = room => {
     if (room.booked) {
@@ -69,7 +70,13 @@ export default function RoomBooking({ onBooking }) {
     setErrorMessage('');
   };
 
-  const handleBooking = async () => {
+  const isDateValid = d => {
+    const today = new Date();
+    const sel = new Date(d);
+    return sel >= new Date(today.setHours(0, 0, 0, 0));
+  };
+
+    const handleBooking = async () => {
     const amt = Number(bookingAmount);
     if (!customerName || !amt || !selectedRoom || !bookingDate) {
       setErrorMessage('Please fill all fields.');
@@ -80,15 +87,15 @@ export default function RoomBooking({ onBooking }) {
       return;
     }
     try {
-      // DELEGATE the actual POST to App.js
-      await onBooking({
+      // POST booking
+      const res = await onBooking({
         roomName: selectedRoom,
         customerName,
         amount: amt,
-        bookingDate
+        bookingDate,
       });
-      // on success...
-      alert('Room was booked successfully!');
+      alert(res?.data?.message || 'Room was booked successfully!');
+      // reset form
       setCustomerName('');
       setBookingAmount('');
       setSelectedRoom('');
@@ -96,8 +103,11 @@ export default function RoomBooking({ onBooking }) {
       setShowBookingForm(false);
       fetchRoomBookings();
     } catch (err) {
-      // onBooking will throw with .response.data.error if server gave 400/500
-      setErrorMessage(err.message || 'Booking failed.');
+      // Detailed error logging
+      console.error('Booking error status:', err.response?.status);
+      console.error('Booking error data:', err.response?.data);
+      const serverMsg = err.response?.data?.error || JSON.stringify(err.response?.data);
+      setErrorMessage(serverMsg || err.message || 'Booking failed.');
     }
   };
 
@@ -105,7 +115,7 @@ export default function RoomBooking({ onBooking }) {
     <div className="relative p-1 bg-gray-900 rounded-xl shadow-lg">
       <h2
         className="text-2xl font-extrabold mb-1 text-center"
-        style={{ color: '#24f21d', fontFamily: "'Dancing Script', cursive'" }}
+        style={{ color: '#24f21d', fontFamily: "'Dancing Script', cursive" }}
       >
         Room Booking
       </h2>
@@ -133,9 +143,7 @@ export default function RoomBooking({ onBooking }) {
       {showBookingForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl w-full max-w-md mx-auto border border-gray-500">
-            <h3 className="text-2xl font-semibold mb-2 text-white">
-              Booking Form
-            </h3>
+            <h3 className="text-2xl font-semibold mb-2 text-white">Booking Form</h3>
             <label className="block mb-2">
               <span className="text-gray-300 font-medium">Customer Name:</span>
               <input
@@ -148,9 +156,7 @@ export default function RoomBooking({ onBooking }) {
               />
             </label>
             <label className="block mb-3">
-              <span className="text-gray-300 font-medium">
-                Booking Amount:
-              </span>
+              <span className="text-gray-300 font-medium">Booking Amount:</span>
               <input
                 type="text"
                 value={bookingAmount}
@@ -183,17 +189,15 @@ export default function RoomBooking({ onBooking }) {
             >
               Cancel
             </button>
-            {errorMessage && (
-              <p className="mt-4 text-red-500 font-semibold">
-                {errorMessage}
-              </p>
-            )}
+            {errorMessage && <p className="mt-4 text-red-500 font-semibold">{errorMessage}</p>}
           </div>
         </div>
       )}
     </div>
   );
-}
+};
+
+export default RoomBooking;
 
 
 
