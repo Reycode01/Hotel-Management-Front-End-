@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
-// Configure base URL for all axios requests
-axios.defaults.baseURL = 'https://hotel-management-backend-8.onrender.com';
+// (You already set axios.defaults.baseURL in App.js)
 
 const roomsList = [
   { name: 'Sapphire Suite', price: 1000 },
@@ -17,9 +16,9 @@ const roomsList = [
   { name: 'Kings', price: 6000 },
 ];
 
-const RoomBooking = () => {
+export default function RoomBooking({ onBooking }) {
   const [rooms, setRooms] = useState(
-    roomsList.map(room => ({ ...room, booked: false }))
+    roomsList.map(r => ({ ...r, booked: false }))
   );
   const [customerName, setCustomerName] = useState('');
   const [bookingAmount, setBookingAmount] = useState('');
@@ -31,33 +30,33 @@ const RoomBooking = () => {
   const fetchRoomBookings = useCallback(async () => {
     if (!bookingDate) return;
     try {
-      const response = await axios.get('/api/room-bookings', {
-        params: { bookingDate },
+      const { data } = await axios.get('/api/room-bookings', {
+        params: { bookingDate }
       });
-
-      const bookedRooms = Array.isArray(response.data.bookings)
-        ? response.data.bookings
-        : [];
-
-      const updated = roomsList.map(room => ({
-        ...room,
-        booked: bookedRooms.some(
-          ({ room_name, booking_date }) =>
-            room_name === room.name && booking_date === bookingDate
-        ),
-      }));
-
-      setRooms(updated);
+      const bookedArray = Array.isArray(data.bookings) ? data.bookings : [];
+      setRooms(
+        roomsList.map(room => ({
+          ...room,
+          booked: bookedArray.some(
+            b => b.room_name === room.name && b.booking_date === bookingDate
+          )
+        }))
+      );
       setErrorMessage('');
     } catch (err) {
-      console.error('Fetch error:', err);
-      setErrorMessage('Unable to fetch availability.');
+      console.error('Availability fetch failed:', err);
+      setErrorMessage('Could not fetch availability.');
     }
   }, [bookingDate]);
 
   useEffect(() => {
     fetchRoomBookings();
   }, [bookingDate, fetchRoomBookings]);
+
+  const isDateValid = d => {
+    const today = new Date();
+    return new Date(d) >= new Date(today.setHours(0,0,0,0));
+  };
 
   const handleRoomClick = room => {
     if (room.booked) {
@@ -68,12 +67,6 @@ const RoomBooking = () => {
     setBookingAmount(String(room.price));
     setShowBookingForm(true);
     setErrorMessage('');
-  };
-
-  const isDateValid = d => {
-    const today = new Date();
-    const sel = new Date(d);
-    return sel >= new Date(today.setHours(0, 0, 0, 0));
   };
 
   const handleBooking = async () => {
@@ -87,13 +80,15 @@ const RoomBooking = () => {
       return;
     }
     try {
-      const res = await axios.post('/api/room-bookings', {
+      // DELEGATE the actual POST to App.js
+      await onBooking({
         roomName: selectedRoom,
         customerName,
         amount: amt,
-        bookingDate,
+        bookingDate
       });
-      alert(res.data.message);
+      // on success...
+      alert('Room was booked successfully!');
       setCustomerName('');
       setBookingAmount('');
       setSelectedRoom('');
@@ -101,10 +96,8 @@ const RoomBooking = () => {
       setShowBookingForm(false);
       fetchRoomBookings();
     } catch (err) {
-      console.error('Booking error:', err);
-      setErrorMessage(
-        err.response?.data?.error || 'Booking failed. Try again.'
-      );
+      // onBooking will throw with .response.data.error if server gave 400/500
+      setErrorMessage(err.message || 'Booking failed.');
     }
   };
 
@@ -112,7 +105,7 @@ const RoomBooking = () => {
     <div className="relative p-1 bg-gray-900 rounded-xl shadow-lg">
       <h2
         className="text-2xl font-extrabold mb-1 text-center"
-        style={{ color: '#24f21d', fontFamily: "'Dancing Script', cursive" }}
+        style={{ color: '#24f21d', fontFamily: "'Dancing Script', cursive'" }}
       >
         Room Booking
       </h2>
@@ -140,7 +133,9 @@ const RoomBooking = () => {
       {showBookingForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
           <div className="bg-gray-800 p-4 sm:p-6 rounded-lg shadow-2xl w-full max-w-md mx-auto border border-gray-500">
-            <h3 className="text-2xl font-semibold mb-2 text-white">Booking Form</h3>
+            <h3 className="text-2xl font-semibold mb-2 text-white">
+              Booking Form
+            </h3>
             <label className="block mb-2">
               <span className="text-gray-300 font-medium">Customer Name:</span>
               <input
@@ -153,7 +148,9 @@ const RoomBooking = () => {
               />
             </label>
             <label className="block mb-3">
-              <span className="text-gray-300 font-medium">Booking Amount:</span>
+              <span className="text-gray-300 font-medium">
+                Booking Amount:
+              </span>
               <input
                 type="text"
                 value={bookingAmount}
@@ -186,15 +183,17 @@ const RoomBooking = () => {
             >
               Cancel
             </button>
-            {errorMessage && <p className="mt-4 text-red-500 font-semibold">{errorMessage}</p>}
+            {errorMessage && (
+              <p className="mt-4 text-red-500 font-semibold">
+                {errorMessage}
+              </p>
+            )}
           </div>
         </div>
       )}
     </div>
   );
-};
-
-export default RoomBooking;
+}
 
 
 

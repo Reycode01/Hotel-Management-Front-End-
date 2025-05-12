@@ -6,9 +6,10 @@ import FoodOrder from './components/FoodOrder';
 import Supplies from './components/Supplies';
 import Salaries from './components/Salaries';
 
+// point ALL axios calls to your backend
 axios.defaults.baseURL = 'https://hotel-management-backend-8.onrender.com';
 
-const App = () => {
+export default function App() {
   const [data, setData] = useState({
     roomsBooked: { count: 0, totalAmount: 0 },
     foodOrders: { count: 0, totalAmount: 0 },
@@ -19,36 +20,37 @@ const App = () => {
     profitOrLoss: 0,
   });
 
+  // Load summary data
   const fetchData = async () => {
     try {
-      const [roomsRes, foodsRes, suppliesRes, salariesRes] = await Promise.all([
+      const [r, f, s, sal] = await Promise.all([
         axios.get('/api/room-bookings'),
         axios.get('/api/food-orders'),
         axios.get('/api/supplies'),
         axios.get('/api/salaries'),
       ]);
 
-      const bookings    = roomsRes.data.bookings    || [];
-      const foodOrders  = foodsRes.data.foodOrders  || [];
-      const suppliesArr = suppliesRes.data.supplies || [];
-      const salariesArr = salariesRes.data.salaries || [];
+      const bookings    = r.data.bookings    || [];
+      const foodOrders  = f.data.foodOrders  || [];
+      const suppliesArr = s.data.supplies    || [];
+      const salariesArr = sal.data.salaries  || [];
 
-      const roomsTotal   = bookings.reduce((sum, r) => sum + parseFloat(r.amount || 0), 0);
-      const foodsTotal   = foodOrders.reduce((sum, f) => sum + parseFloat(f.beverage_quantity || 0), 0);
-      const suppliesTotal= suppliesArr.reduce((sum, s) => sum + parseFloat(s.amount || 0), 0);
-      const salariesTotal= salariesArr.reduce((sum, s) => sum + parseFloat(s.total_pay || 0), 0);
+      const roomsTotal    = bookings.reduce((sum, x) => sum + +x.amount, 0);
+      const foodsTotal    = foodOrders.reduce((sum, x) => sum + +x.beverage_quantity, 0);
+      const suppliesTotal = suppliesArr.reduce((sum, x) => sum + +x.amount, 0);
+      const salariesTotal = salariesArr.reduce((sum, x) => sum + +x.total_pay, 0);
 
       setData({
-        roomsBooked: { count: bookings.length, totalAmount: roomsTotal },
-        foodOrders:  { count: foodOrders.length, totalAmount: foodsTotal },
-        supplies:    { count: suppliesArr.length, totalAmount: suppliesTotal },
-        salaries:    { count: salariesArr.length, totalAmount: salariesTotal },
-        totalIncome:      roomsTotal + foodsTotal,
+        roomsBooked:    { count: bookings.length, totalAmount: roomsTotal },
+        foodOrders:     { count: foodOrders.length, totalAmount: foodsTotal },
+        supplies:       { count: suppliesArr.length, totalAmount: suppliesTotal },
+        salaries:       { count: salariesArr.length, totalAmount: salariesTotal },
+        totalIncome:      roomsTotal  + foodsTotal,
         totalExpenditure: suppliesTotal + salariesTotal,
-        profitOrLoss:     roomsTotal + foodsTotal - (suppliesTotal + salariesTotal),
+        profitOrLoss:     roomsTotal  + foodsTotal - (suppliesTotal + salariesTotal),
       });
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch (e) {
+      console.error('Summary fetch failed:', e);
     }
   };
 
@@ -56,19 +58,21 @@ const App = () => {
     fetchData();
   }, []);
 
-  // Re-fetch summary after any child posts
-  const updateData = endpoint => async postData => {
+  // create a handler to POST and then refresh summary
+  const handlePost = endpoint => async payload => {
     try {
-      await axios.post(`/api/${endpoint}`, postData);
+      const res = await axios.post(`/api/${endpoint}`, payload);
+      if (res.data.error) throw new Error(res.data.error);
       await fetchData();
-    } catch (error) {
-      console.error(`Error updating ${endpoint}:`, error.response?.data || error.message);
+    } catch (err) {
+      // re–throw so RoomBooking can catch/display
+      throw err;
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-400 via-pink-500 to-red-500 p-8 flex flex-col justify-between">
-      <header className="from-green-400 to-blue-500 text-white p-6">
+      <header className="text-white p-6">
         <h1
           className="text-3xl font-extrabold text-yellow-900"
           style={{
@@ -79,7 +83,7 @@ const App = () => {
           Hotel Budget Management
         </h1>
         <p
-          className="text-lg italic font-light text-yellow-300 to-yellow-600"
+          className="text-lg italic font-light text-yellow-300"
           style={{
             fontFamily: "'Dancing Script', cursive",
             textShadow: '1px 1px 2px rgba(0, 0, 0, 0.3)',
@@ -103,11 +107,11 @@ const App = () => {
           </p>
         </section>
 
-        {/* Pass handlers into your unchanged styled components */}
-        <RoomBooking onBooking={updateData('room-bookings')} />
-        <FoodOrder   onOrder={updateData('food-orders')}     />
-        <Supplies    onSupply={updateData('supplies')}       />
-        <Salaries    onSalary={updateData('salaries')}       />
+        {/* pass in the POST handlers */}
+        <RoomBooking   onBooking={handlePost('room-bookings')} />
+        <FoodOrder     onOrder={handlePost('food-orders')}     />
+        <Supplies      onSupply={handlePost('supplies')}       />
+        <Salaries      onSalary={handlePost('salaries')}       />
       </main>
 
       <footer className="text-center text-yellow-400 py-4 mt-2">
@@ -115,6 +119,4 @@ const App = () => {
       </footer>
     </div>
   );
-};
-
-export default App;
+}
