@@ -25,20 +25,28 @@ const RoomBooking = () => {
 
   const fetchRoomBookings = useCallback(async () => {
     try {
-      const response = await axios.get('https://hotel-management-backend-8.onrender.com/api/room-bookings', {
-        params: { bookingDate }
-      });
+      const response = await axios.get(
+        'https://hotel-management-backend-8.onrender.com/api/room-bookings',
+        { params: { bookingDate } }
+      );
 
-      const bookedRooms = response.data;
+      // Backend returns { bookings: [...] }
+      const bookedRooms = Array.isArray(response.data.bookings)
+        ? response.data.bookings
+        : [];
 
       const updatedRooms = roomsList.map(room => ({
         ...room,
-        booked: bookedRooms.some(booking => booking.room_name === room.name && booking.booking_date === bookingDate)
+        booked: bookedRooms.some(
+          booking =>
+            booking.room_name === room.name && booking.booking_date === bookingDate
+        ),
       }));
 
       setRooms(updatedRooms);
     } catch (error) {
       console.error('Error fetching room bookings:', error);
+      setErrorMessage('Failed to fetch room bookings. Please try again.');
     }
   }, [bookingDate]);
 
@@ -48,7 +56,7 @@ const RoomBooking = () => {
     }
   }, [bookingDate, fetchRoomBookings]);
 
-  const handleRoomClick = (room) => {
+  const handleRoomClick = room => {
     if (room.booked) {
       setErrorMessage(`Room ${room.name} is already booked for the selected date.`);
       return;
@@ -60,44 +68,56 @@ const RoomBooking = () => {
     setShowBookingForm(true);
   };
 
-  const isDateValid = (selectedDate) => {
+  const isDateValid = selectedDate => {
     const today = new Date();
-    const bookingDate = new Date(selectedDate);
-    return bookingDate >= today.setHours(0, 0, 0, 0);
+    const date = new Date(selectedDate);
+    return date >= new Date(today.setHours(0, 0, 0, 0));
   };
 
   const handleBooking = async () => {
-    const bookingAmountNum = Number(bookingAmount.trim());
+    const amountNum = Number(bookingAmount.trim());
 
-    if (customerName.trim() === '' || isNaN(bookingAmountNum) || selectedRoom.trim() === '' || !bookingDate) {
+    if (
+      customerName.trim() === '' ||
+      isNaN(amountNum) ||
+      selectedRoom.trim() === '' ||
+      !bookingDate
+    ) {
       setErrorMessage('Please fill in all fields.');
       return;
     }
 
     if (!isDateValid(bookingDate)) {
-      setErrorMessage('Please select today or a future date. We look forward to serving you!');
+      setErrorMessage('Please select today or a future date.');
       return;
     }
 
     try {
-      const response = await axios.post('https://hotel-management-backend-8.onrender.com/api/room-bookings', {
-        roomName: selectedRoom,
-        customerName,
-        amount: bookingAmountNum,
-        bookingDate
-      });
+      const response = await axios.post(
+        'https://hotel-management-backend-8.onrender.com/api/room-bookings',
+        {
+          roomName: selectedRoom,
+          customerName,
+          amount: amountNum,
+          bookingDate,
+        }
+      );
 
       alert(response.data.message);
+      // Reset form
       setCustomerName('');
       setBookingAmount('');
       setSelectedRoom('');
       setBookingDate('');
       setErrorMessage('');
       setShowBookingForm(false);
+      // Refresh availability
       fetchRoomBookings();
     } catch (error) {
-      setErrorMessage(error.response?.data?.error || 'An error occurred while submitting the booking.');
-      console.error(error.response?.data || error.message);
+      setErrorMessage(
+        error.response?.data?.error || 'An error occurred while submitting the booking.'
+      );
+      console.error('Booking error:', error.response || error.message);
     }
   };
 
@@ -112,7 +132,7 @@ const RoomBooking = () => {
 
       {!showBookingForm && (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 lg:grid-cols-5 gap-4 mb-3">
-          {rooms.map((room) => (
+          {rooms.map(room => (
             <button
               key={room.name}
               onClick={() => handleRoomClick(room)}
@@ -139,7 +159,7 @@ const RoomBooking = () => {
               <input
                 type="text"
                 value={customerName}
-                onChange={(e) => setCustomerName(e.target.value)}
+                onChange={e => setCustomerName(e.target.value)}
                 className="w-full mt-1 p-2 border border-gray-500 rounded bg-gray-700 text-white focus:ring"
                 style={{ borderColor: '#24f21d' }}
                 placeholder="Enter customer's name"
@@ -150,7 +170,7 @@ const RoomBooking = () => {
               <input
                 type="text"
                 value={bookingAmount}
-                onChange={(e) => setBookingAmount(e.target.value)}
+                onChange={e => setBookingAmount(e.target.value)}
                 className="w-full mt-1 p-2 border border-gray-500 rounded bg-gray-700 text-white focus:ring"
                 style={{ borderColor: '#24f21d' }}
                 placeholder="Enter booking amount"
@@ -161,7 +181,7 @@ const RoomBooking = () => {
               <input
                 type="date"
                 value={bookingDate}
-                onChange={(e) => setBookingDate(e.target.value)}
+                onChange={e => setBookingDate(e.target.value)}
                 className="w-full mt-1 p-2 border border-gray-500 rounded bg-gray-700 text-white focus:ring"
                 style={{ borderColor: '#24f21d' }}
               />
