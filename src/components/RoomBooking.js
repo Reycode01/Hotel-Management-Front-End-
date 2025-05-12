@@ -31,7 +31,7 @@ const RoomBooking = () => {
 
   const fetchRoomBookings = async () => {
     try {
-      const response = await axios.get('https://hotel-management-backend-7.onrender.com/api/room-bookings', {
+      const response = await axios.get('https://hotel-management-backend-8.onrender.com/api/room-bookings', {
         params: { bookingDate }
       });
 
@@ -80,7 +80,7 @@ const RoomBooking = () => {
     }
 
     try {
-      const response = await axios.post('https://hotel-management-backend-7.onrender.com/api/room-bookings', {
+      const response = await axios.post('https://hotel-management-backend-8.onrender.com/api/room-bookings', {
         roomName: selectedRoom,
         customerName,
         amount: bookingAmountNum,

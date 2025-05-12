@@ -111,7 +111,7 @@ const App = () => {
         <Salaries onSalary={handleSalary} />
       </main>
       <footer className="text-center text-yellow-400 py-4 mt-2">
-        <p>© 2025 Humphrey's Dev Studio. All Rights Reserved.</p>
+        <p>© 2025cd  Humphrey's Dev Studio. All Rights Reserved.</p>
       </footer>
     </div>
   );
