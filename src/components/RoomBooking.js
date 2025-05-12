@@ -17,7 +17,7 @@ const roomsList = [
   { name: 'Kings', price: 6000 },
 ];
 
-const RoomBooking = () => {
+const RoomBooking = ({ onBooking }) => {
   const [rooms, setRooms] = useState(
     roomsList.map(room => ({ ...room, booked: false }))
   );
@@ -198,7 +198,6 @@ const RoomBooking = () => {
 };
 
 export default RoomBooking;
-
 
 
 
