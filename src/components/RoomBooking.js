@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
 const roomsList = [
@@ -27,7 +27,7 @@ const RoomBooking = () => {
     if (bookingDate) {
       fetchRoomBookings();
     }
-  }, [bookingDate]);
+  }, [bookingDate, fetchRoomBookings]);
 
   const fetchRoomBookings = async () => {
     try {
@@ -46,7 +46,7 @@ const RoomBooking = () => {
     } catch (error) {
       console.error('Error fetching room bookings:', error);
     }
-  };
+  }; [bookingDate]
 
   const handleRoomClick = (room) => {
     if (room.booked) {
