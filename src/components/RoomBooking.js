@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 
+// Configure base URL for all axios requests
+axios.defaults.baseURL = 'https://hotel-management-backend-8.onrender.com';
+
 const roomsList = [
   { name: 'Sapphire Suite', price: 1000 },
   { name: 'Emerald Haven', price: 2000 },
@@ -15,7 +18,9 @@ const roomsList = [
 ];
 
 const RoomBooking = () => {
-  const [rooms, setRooms] = useState(roomsList.map(room => ({ ...room, booked: false })));
+  const [rooms, setRooms] = useState(
+    roomsList.map(room => ({ ...room, booked: false }))
+  );
   const [customerName, setCustomerName] = useState('');
   const [bookingAmount, setBookingAmount] = useState('');
   const [selectedRoom, setSelectedRoom] = useState('');
@@ -24,100 +29,82 @@ const RoomBooking = () => {
   const [showBookingForm, setShowBookingForm] = useState(false);
 
   const fetchRoomBookings = useCallback(async () => {
+    if (!bookingDate) return;
     try {
-      const response = await axios.get(
-        'https://hotel-management-backend-8.onrender.com/api/room-bookings',
-        { params: { bookingDate } }
-      );
+      const response = await axios.get('/api/room-bookings', {
+        params: { bookingDate },
+      });
 
-      // Backend returns { bookings: [...] }
       const bookedRooms = Array.isArray(response.data.bookings)
         ? response.data.bookings
         : [];
 
-      const updatedRooms = roomsList.map(room => ({
+      const updated = roomsList.map(room => ({
         ...room,
         booked: bookedRooms.some(
-          booking =>
-            booking.room_name === room.name && booking.booking_date === bookingDate
+          ({ room_name, booking_date }) =>
+            room_name === room.name && booking_date === bookingDate
         ),
       }));
 
-      setRooms(updatedRooms);
-    } catch (error) {
-      console.error('Error fetching room bookings:', error);
-      setErrorMessage('Failed to fetch room bookings. Please try again.');
+      setRooms(updated);
+      setErrorMessage('');
+    } catch (err) {
+      console.error('Fetch error:', err);
+      setErrorMessage('Unable to fetch availability.');
     }
   }, [bookingDate]);
 
   useEffect(() => {
-    if (bookingDate) {
-      fetchRoomBookings();
-    }
+    fetchRoomBookings();
   }, [bookingDate, fetchRoomBookings]);
 
   const handleRoomClick = room => {
     if (room.booked) {
-      setErrorMessage(`Room ${room.name} is already booked for the selected date.`);
+      setErrorMessage(`Room ${room.name} is already booked.`);
       return;
     }
-
     setSelectedRoom(room.name);
     setBookingAmount(String(room.price));
-    setErrorMessage('');
     setShowBookingForm(true);
+    setErrorMessage('');
   };
 
-  const isDateValid = selectedDate => {
+  const isDateValid = d => {
     const today = new Date();
-    const date = new Date(selectedDate);
-    return date >= new Date(today.setHours(0, 0, 0, 0));
+    const sel = new Date(d);
+    return sel >= new Date(today.setHours(0, 0, 0, 0));
   };
 
   const handleBooking = async () => {
-    const amountNum = Number(bookingAmount.trim());
-
-    if (
-      customerName.trim() === '' ||
-      isNaN(amountNum) ||
-      selectedRoom.trim() === '' ||
-      !bookingDate
-    ) {
-      setErrorMessage('Please fill in all fields.');
+    const amt = Number(bookingAmount);
+    if (!customerName || !amt || !selectedRoom || !bookingDate) {
+      setErrorMessage('Please fill all fields.');
       return;
     }
-
     if (!isDateValid(bookingDate)) {
-      setErrorMessage('Please select today or a future date.');
+      setErrorMessage('Select today or future date.');
       return;
     }
-
     try {
-      const response = await axios.post(
-        'https://hotel-management-backend-8.onrender.com/api/room-bookings',
-        {
-          roomName: selectedRoom,
-          customerName,
-          amount: amountNum,
-          bookingDate,
-        }
-      );
-
-      alert(response.data.message);
-      // Reset form
+      const res = await axios.post('/api/room-bookings', {
+        roomName: selectedRoom,
+        customerName,
+        amount: amt,
+        bookingDate,
+      });
+      alert(res.data.message);
       setCustomerName('');
       setBookingAmount('');
       setSelectedRoom('');
       setBookingDate('');
-      setErrorMessage('');
       setShowBookingForm(false);
-      // Refresh availability
       fetchRoomBookings();
-    } catch (error) {
+    } catch (err) {
+      console.error('Booking error:', err);
       setErrorMessage(
-        error.response?.data?.error || 'An error occurred while submitting the booking.'
+        err.response?.data?.error || 'Booking failed. Try again.'
       );
-      console.error('Booking error:', error.response || error.message);
     }
   };
 
@@ -199,9 +186,7 @@ const RoomBooking = () => {
             >
               Cancel
             </button>
-            {errorMessage && (
-              <p className="mt-4 text-red-500 font-semibold">{errorMessage}</p>
-            )}
+            {errorMessage && <p className="mt-4 text-red-500 font-semibold">{errorMessage}</p>}
           </div>
         </div>
       )}
