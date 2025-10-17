@@ -95,17 +95,7 @@ export default function App() {
       </header>
 
       <main className="space-y-6">
-        <section className="bg-white bg-opacity-20 p-4 rounded-lg shadow-md text-white">
-          <h2 className="text-xl font-bold mb-2">Summary</h2>
-          <p>Total Income: KES {data.totalIncome.toFixed(2)}</p>
-          <p>Total Expenditure: KES {data.totalExpenditure.toFixed(2)}</p>
-          <p>
-            Profit or Loss:{' '}
-            <span className={data.profitOrLoss >= 0 ? 'text-green-200' : 'text-red-200'}>
-              KES {data.profitOrLoss.toFixed(2)}
-            </span>
-          </p>
-        </section>
+        
 
         {/* pass in the POST handlers */}
         <RoomBooking   onBooking={handlePost('room-bookings')} />
